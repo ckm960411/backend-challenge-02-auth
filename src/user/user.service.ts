@@ -1,3 +1,4 @@
+import { omit } from 'lodash';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
@@ -28,7 +29,7 @@ export class UserService {
     name: string;
     email: string;
     password: string;
-  }) {
+  }): Promise<Omit<User, 'password'>> {
     const user = await this.findByEmail(email);
 
     if (user) {
@@ -41,6 +42,6 @@ export class UserService {
       password,
     });
 
-    return newUser;
+    return omit(newUser, ['password']);
   }
 }
