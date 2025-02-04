@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/user.entity';
 import { UserService } from 'src/user/user.service';
+import { SigninResponse } from './dto/response/signin.response';
 
 @Injectable()
 export class AuthService {
@@ -32,5 +33,41 @@ export class AuthService {
     });
 
     return user;
+  }
+
+  async signIn({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }): Promise<SigninResponse> {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new UnauthorizedException(
+        '이메일 또는 비밀번호가 일치하지 않습니다.',
+      );
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException(
+        '이메일 또는 비밀번호가 일치하지 않습니다.',
+      );
+    }
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+    };
+
+    return {
+      accessToken: this.jwtService.sign(payload, {
+        secret: this.configService.get('JWT_SECRET'),
+        expiresIn: '1h',
+      }),
+    };
   }
 }
