@@ -3,6 +3,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
+import { SigninMethod } from 'src/auth/types/enum/signin-method.enum';
 
 @Injectable()
 export class UserService {
@@ -25,10 +26,14 @@ export class UserService {
     name,
     email,
     password,
+    provider,
+    providerId,
   }: {
     name: string;
     email: string;
     password: string;
+    provider?: SigninMethod;
+    providerId?: string;
   }): Promise<Omit<User, 'password'>> {
     const user = await this.findByEmail(email);
 
@@ -40,6 +45,8 @@ export class UserService {
       name,
       email,
       password,
+      provider,
+      providerId,
     });
 
     return omit(newUser, ['password']);
