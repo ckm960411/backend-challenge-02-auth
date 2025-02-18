@@ -33,8 +33,9 @@ export class JwtGoogleStrategy extends PassportStrategy(Strategy, 'google') {
     console.log('success');
     console.log(accessToken);
     try {
-      const { name, emails, photos } = profile;
+      const { id, name, emails, photos } = profile;
       const user = {
+        id,
         email: emails[0].value,
         firstName: name.familyName,
         lastName: name.givenName,
