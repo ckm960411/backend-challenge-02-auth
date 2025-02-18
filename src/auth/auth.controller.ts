@@ -47,6 +47,13 @@ export class AuthController {
     return this.authService.googleSignin(req.user);
   }
 
+  @Get('/signin/kakao')
+  @UseGuards(KakaoAuthGuard)
+  async kakaoAuth() {
+    // 카카오 로그인 페이지로 리다이렉트됨
+    return;
+  }
+
   @Get('/signin/kakao/callback')
   @UseGuards(KakaoAuthGuard)
   async kakaoAuthCallback(@Req() req: KakaoRequest) {
