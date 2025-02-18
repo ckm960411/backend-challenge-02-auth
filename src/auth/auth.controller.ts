@@ -6,6 +6,8 @@ import { SigninRequest } from './dto/request/signin.request';
 import { SigninResponse } from './dto/response/signin.response';
 import { GoogleAuthGuard } from './strategies/google-auth.guard';
 import { GoogleRequest } from './types/google-request.interface';
+import { KakaoAuthGuard } from './strategies/kakao-auth.guard';
+import { KakaoRequest } from './types/kakao-request.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -43,5 +45,11 @@ export class AuthController {
     // Google 인증이 성공하면 이 메서드가 실행됩니다
     // req.user에 Google 프로필 정보가 들어있습니다
     return this.authService.googleSignin(req.user);
+  }
+
+  @Get('/signin/kakao/callback')
+  @UseGuards(KakaoAuthGuard)
+  async kakaoAuthCallback(@Req() req: KakaoRequest) {
+    return this.authService.kakaoSignin(req.user);
   }
 }
