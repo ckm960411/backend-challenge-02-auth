@@ -83,7 +83,7 @@ export class AuthService {
 
     if (!existingUser) {
       existingUser = await this.userService.createUser({
-        name: user.name || user.email.split('@')[0], // 이름이 없으면 이메일의 앞부분 사용
+        name: user.firstName + ' ' + user.lastName,
         email: user.email,
         password: '', // 소셜로그인을 한 사용자는 비밀번호가 없음
         provider: SigninMethod.GOOGLE,
