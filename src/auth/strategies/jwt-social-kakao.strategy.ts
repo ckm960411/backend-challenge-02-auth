@@ -22,12 +22,11 @@ export class JwtKakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     console.log('success');
     console.log(accessToken);
     try {
-      const { id, name, emails } = profile;
+      const { id, kakao_account } = profile._json;
       const user = {
         id,
-        email: emails[0].value,
-        firstName: name.familyName,
-        lastName: name.givenName,
+        email: kakao_account.email,
+        name: kakao_account.profile.nickname,
       };
       done(null, user);
     } catch (error) {

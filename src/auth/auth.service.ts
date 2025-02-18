@@ -120,11 +120,11 @@ export class AuthService {
 
     if (!existingUser) {
       existingUser = await this.userService.createUser({
-        name: user.firstName + ' ' + user.lastName,
+        name: user.name,
         email: user.email,
         password: '', // 소셜로그인을 한 사용자는 비밀번호가 없음
         provider: SigninMethod.KAKAO,
-        providerId: user.id,
+        providerId: user.id.toString(),
       });
     }
 
