@@ -15,7 +15,7 @@ export class User extends BaseEntity {
 
   @Column({
     type: 'enum',
-    enum: [SigninMethod.GOOGLE, SigninMethod.LOCAL],
+    enum: [SigninMethod.GOOGLE, SigninMethod.LOCAL, SigninMethod.KAKAO],
     default: SigninMethod.LOCAL,
   })
   provider: SigninMethod;
