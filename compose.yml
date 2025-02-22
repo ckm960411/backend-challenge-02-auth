@@ -5,6 +5,3 @@ services:
       - 80:80
     env_file:
       - .env
-    depends_on:
-      backend-challenge-02-auth-db:
-        condition: service_healthy
