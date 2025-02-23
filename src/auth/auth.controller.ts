@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { User } from 'src/entities/user.entity';
 import { AuthService } from './auth.service';
 import { SignupRequest } from './dto/request/signup.request';
@@ -8,10 +16,14 @@ import { GoogleAuthGuard } from './strategies/google-auth.guard';
 import { GoogleRequest } from './types/google-request.interface';
 import { KakaoAuthGuard } from './strategies/kakao-auth.guard';
 import { KakaoRequest } from './types/kakao-request.interface';
-
+import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('signup')
   async signup(
@@ -41,10 +53,12 @@ export class AuthController {
 
   @Get('/signin/google/callback')
   @UseGuards(GoogleAuthGuard)
-  async googleAuthCallback(@Req() req: GoogleRequest) {
+  async googleAuthCallback(@Req() req: GoogleRequest, @Res() res: Response) {
     // Google 인증이 성공하면 이 메서드가 실행됩니다
     // req.user에 Google 프로필 정보가 들어있습니다
-    return this.authService.googleSignin(req.user);
+    const { accessToken } = await this.authService.googleSignin(req.user);
+    const webUrl = this.configService.get<string>('WEB_URL');
+    res.redirect(`${webUrl}/auth/google/callback?token=${accessToken}`);
   }
 
   @Get('/signin/kakao')
@@ -56,7 +70,9 @@ export class AuthController {
 
   @Get('/signin/kakao/callback')
   @UseGuards(KakaoAuthGuard)
-  async kakaoAuthCallback(@Req() req: KakaoRequest) {
-    return this.authService.kakaoSignin(req.user);
+  async kakaoAuthCallback(@Req() req: KakaoRequest, @Res() res: Response) {
+    const { accessToken } = await this.authService.kakaoSignin(req.user);
+    const webUrl = this.configService.get<string>('WEB_URL');
+    res.redirect(`${webUrl}/auth/kakao/callback?token=${accessToken}`);
   }
 }
