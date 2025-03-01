@@ -8,6 +8,7 @@ import { SigninResponse } from './dto/response/signin.response';
 import { GoogleUser } from './types/google-user.interface';
 import { SigninMethod } from './types/enum/signin-method.enum';
 import { KakaoUser } from './types/kakao-user.interface';
+import { JwtPayload } from './types/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -61,7 +62,7 @@ export class AuthService {
       );
     }
 
-    const payload = {
+    const payload: JwtPayload = {
       id: user.id,
       email: user.email,
     };
