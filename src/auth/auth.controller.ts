@@ -58,7 +58,7 @@ export class AuthController {
     // req.user에 Google 프로필 정보가 들어있습니다
     const { accessToken } = await this.authService.googleSignin(req.user);
     const webUrl = this.configService.get<string>('WEB_URL');
-    res.redirect(`${webUrl}/auth/google/callback?token=${accessToken}`);
+    res.redirect(`${webUrl}/auth/google/callback?accessToken=${accessToken}`);
   }
 
   @Get('/signin/kakao')
@@ -73,6 +73,6 @@ export class AuthController {
   async kakaoAuthCallback(@Req() req: KakaoRequest, @Res() res: Response) {
     const { accessToken } = await this.authService.kakaoSignin(req.user);
     const webUrl = this.configService.get<string>('WEB_URL');
-    res.redirect(`${webUrl}/auth/kakao/callback?token=${accessToken}`);
+    res.redirect(`${webUrl}/auth/kakao/callback?accessToken=${accessToken}`);
   }
 }
