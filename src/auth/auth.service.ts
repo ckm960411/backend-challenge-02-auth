@@ -146,4 +146,30 @@ export class AuthService {
       },
     };
   }
+
+  async changePassword(
+    userId: number,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('현재 비밀번호가 일치하지 않습니다.');
+    }
+
+    const SALT_ROUNDS = +this.configService.get('SALT_ROUNDS');
+    const hashedNewPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+    await this.userService.updatePassword(userId, hashedNewPassword);
+  }
 }

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Req,
   Res,
   UseGuards,
@@ -18,6 +19,10 @@ import { KakaoAuthGuard } from './strategies/kakao-auth.guard';
 import { KakaoRequest } from './types/kakao-request.interface';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { JwtAuthGuard } from './strategies/jwt-auth.guard';
+import { User as UserDecorator } from './decorators/user.decorator';
+import { ChangePasswordRequest } from './dto/request/change-password.request';
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -42,6 +47,19 @@ export class AuthController {
       email: request.email,
       password: request.password,
     });
+  }
+
+  @Patch('password')
+  @UseGuards(JwtAuthGuard)
+  async changePassword(
+    @UserDecorator('id') userId: number,
+    @Body() request: ChangePasswordRequest,
+  ): Promise<void> {
+    await this.authService.changePassword(
+      userId,
+      request.currentPassword,
+      request.newPassword,
+    );
   }
 
   @Get('/signin/google')

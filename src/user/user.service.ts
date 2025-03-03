@@ -13,10 +13,17 @@ export class UserService {
   ) {}
 
   /**
-   * User 조회
+   * User 조회 by Email
    */
   async findByEmail(email: string) {
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  /**
+   * User 조회 by ID
+   */
+  async findById(id: number) {
+    return this.userRepository.findOne({ where: { id } });
   }
 
   /**
@@ -50,5 +57,12 @@ export class UserService {
     });
 
     return omit(newUser, ['password']);
+  }
+
+  /**
+   * 비밀번호 업데이트
+   */
+  async updatePassword(userId: number, hashedPassword: string): Promise<void> {
+    await this.userRepository.update(userId, { password: hashedPassword });
   }
 }
