@@ -7,6 +7,8 @@ import {
   Req,
   Res,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { User } from 'src/entities/user.entity';
 import { AuthService } from './auth.service';
@@ -22,6 +24,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from './strategies/jwt-auth.guard';
 import { User as UserDecorator } from './decorators/user.decorator';
 import { ChangePasswordRequest } from './dto/request/change-password.request';
+import { ResetPasswordRequestDto } from './dto/request/reset-password-request.dto';
+import { VerifyCodeDto } from './dto/request/verify-code.dto';
+import { ResetPasswordDto } from './dto/request/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -92,5 +97,38 @@ export class AuthController {
     const { accessToken } = await this.authService.kakaoSignin(req.user);
     const webUrl = this.configService.get<string>('WEB_URL');
     res.redirect(`${webUrl}/auth/kakao/callback?accessToken=${accessToken}`);
+  }
+
+  @Post('password/reset-request')
+  @HttpCode(HttpStatus.OK)
+  async requestPasswordReset(
+    @Body() request: ResetPasswordRequestDto,
+  ): Promise<void> {
+    await this.authService.requestPasswordReset(
+      request.email,
+      request.currentPassword,
+    );
+  }
+
+  @Post('password/verify-code')
+  @HttpCode(HttpStatus.OK)
+  async verifyPasswordResetCode(
+    @Body() request: VerifyCodeDto,
+  ): Promise<{ isValid: boolean }> {
+    const isValid = await this.authService.verifyPasswordResetCode(
+      request.email,
+      request.code,
+    );
+    return { isValid };
+  }
+
+  @Post('password/reset')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() request: ResetPasswordDto): Promise<void> {
+    await this.authService.resetPassword(
+      request.email,
+      request.code,
+      request.newPassword,
+    );
   }
 }

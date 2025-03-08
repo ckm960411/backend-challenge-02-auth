@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -9,6 +13,7 @@ import { GoogleUser } from './types/google-user.interface';
 import { SigninMethod } from './types/enum/signin-method.enum';
 import { KakaoUser } from './types/kakao-user.interface';
 import { JwtPayload } from './types/jwt-payload.interface';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +21,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   async signUp({
@@ -171,5 +177,49 @@ export class AuthService {
     const hashedNewPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
     await this.userService.updatePassword(userId, hashedNewPassword);
+  }
+
+  async requestPasswordReset(
+    email: string,
+    currentPassword: string,
+  ): Promise<void> {
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException('해당 이메일로 가입된 사용자가 없습니다.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('현재 비밀번호가 일치하지 않습니다.');
+    }
+
+    await this.emailService.sendVerificationCode(email);
+  }
+
+  async verifyPasswordResetCode(email: string, code: string): Promise<boolean> {
+    return this.emailService.verifyCode(email, code);
+  }
+
+  async resetPassword(
+    email: string,
+    code: string,
+    newPassword: string,
+  ): Promise<void> {
+    const isVerified = await this.emailService.verifyCode(email, code);
+    if (!isVerified) {
+      throw new UnauthorizedException('유효하지 않은 인증 코드입니다.');
+    }
+
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException('해당 이메일로 가입된 사용자가 없습니다.');
+    }
+
+    const SALT_ROUNDS = +this.configService.get('SALT_ROUNDS');
+    const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await this.userService.updatePassword(user.id, hashedPassword);
   }
 }
