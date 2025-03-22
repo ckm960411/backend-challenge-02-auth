@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -15,6 +16,16 @@ async function bootstrap() {
   //   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   //   exposedHeaders: ['Authorization'],
   // });
+
+  const config = new DocumentBuilder()
+    .setTitle('앱등이가되 API')
+    .setDescription('앱등이가되 API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT ?? 80);
 }
