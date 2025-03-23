@@ -6,7 +6,8 @@ import { In, Repository } from 'typeorm';
 import { GetProductsResponse } from './dto/response/get-products.response';
 import { WithRelations } from 'src/utils/types/utility/WithRelations.utility';
 import { ProductOption } from 'src/entities/product-option.entity';
-import { groupBy } from 'lodash';
+import { filter, groupBy, map } from 'lodash';
+import { ProductCategory } from 'src/entities/product-category.entity';
 
 @Injectable()
 export class ProductService {
@@ -15,6 +16,8 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(ProductOption)
     private readonly productOptionRepository: Repository<ProductOption>,
+    @InjectRepository(ProductCategory)
+    private readonly productCategoryRepository: Repository<ProductCategory>,
   ) {}
 
   async getProducts({
@@ -61,6 +64,20 @@ export class ProductService {
 
     return products.map((product) =>
       GetProductsResponse.of(product, groupedOptionsByProductId[product.id]),
+    );
+  }
+
+  async createProductCategories() {
+    const productCategories = await this.productCategoryRepository.find();
+
+    const alreadyCreated = map(productCategories, 'name');
+    const notCreated = filter(
+      ProductCategoryEnum,
+      (category) => !alreadyCreated.includes(category),
+    );
+
+    return this.productCategoryRepository.save(
+      map(notCreated, (category) => ({ name: category })),
     );
   }
 }

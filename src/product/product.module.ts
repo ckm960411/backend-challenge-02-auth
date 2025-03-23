@@ -9,6 +9,8 @@ import { ProductOptionDetail } from 'src/entities/product-option-detail.entity';
 import { ProductSpec } from 'src/entities/product-spec.entity';
 import { ProductColor } from 'src/entities/product-color.entity';
 import { ProductPhoto } from 'src/entities/product-photo.entity';
+import { ProductTag } from 'src/entities/product-tag.entity';
+import { CreateProductService } from './service/create-product.service';
 
 @Module({
   imports: [
@@ -20,9 +22,10 @@ import { ProductPhoto } from 'src/entities/product-photo.entity';
       ProductCategory,
       ProductOption,
       ProductOptionDetail,
+      ProductTag,
     ]),
   ],
   controllers: [ProductController],
-  providers: [ProductService],
+  providers: [ProductService, CreateProductService],
 })
 export class ProductModule {}
