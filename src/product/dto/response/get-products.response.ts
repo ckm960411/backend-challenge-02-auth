@@ -132,6 +132,134 @@ export class MacProductResponse extends BaseProductResponse {
   }
 }
 
+export class IPadProductResponse extends BaseProductResponse {
+  @Column()
+  processor: string | null;
+
+  @Column()
+  network: string | null;
+
+  @Column()
+  displaySize: string | null;
+
+  @Column()
+  displayHorizontalPixel: string | null;
+
+  @Column()
+  displayVerticalPixel: string | null;
+
+  @Column()
+  displayBrightness: string | null;
+
+  @Column()
+  options: IPadOptionResposne[];
+  constructor(
+    product: WithRelations<
+      Product,
+      | 'productCategory'
+      | 'productColors'
+      | 'productTags'
+      | 'productSpecs'
+      | 'productPhotos'
+    >,
+    productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
+  ) {
+    super(product);
+    product.productSpecs.forEach(({ type, value }) => {
+      if (
+        [
+          'processor',
+          'network',
+          'displaySize',
+          'displayHorizontalPixel',
+          'displayVerticalPixel',
+          'displayBrightness',
+        ].includes(type)
+      ) {
+        this[type] = value;
+      }
+    });
+    this.options = map(productOptions, (option) => {
+      const detailObj = option.productOptionDetails.reduce(
+        (obj, detail) => {
+          if (['storage'].includes(detail.type)) {
+            obj[detail.type] = detail.value;
+          }
+          return obj;
+        },
+        {} as Pick<IPadOptionResposne, 'storage'>,
+      );
+      return {
+        id: option.id,
+        additionalPrice: option.additionalPrice,
+        ...detailObj,
+      };
+    });
+  }
+}
+
+export class IPhoneProductResponse extends BaseProductResponse {
+  @Column()
+  processor: string | null;
+
+  @Column()
+  displaySize: string | null;
+
+  @Column()
+  displayHorizontalPixel: string | null;
+
+  @Column()
+  displayVerticalPixel: string | null;
+
+  @Column()
+  displayBrightness: string | null;
+
+  @Column()
+  options: IPadOptionResposne[];
+  constructor(
+    product: WithRelations<
+      Product,
+      | 'productCategory'
+      | 'productColors'
+      | 'productTags'
+      | 'productSpecs'
+      | 'productPhotos'
+    >,
+    productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
+  ) {
+    super(product);
+    product.productSpecs.forEach(({ type, value }) => {
+      if (
+        [
+          'processor',
+          'displaySize',
+          'displayHorizontalPixel',
+          'displayVerticalPixel',
+          'displayBrightness',
+        ].includes(type)
+      ) {
+        this[type] = value;
+      }
+    });
+    this.options = map(productOptions, (option) => {
+      const detailObj = option.productOptionDetails.reduce(
+        (obj, detail) => {
+          if (['storage'].includes(detail.type)) {
+            obj[detail.type] = detail.value;
+          }
+          return obj;
+        },
+        {} as Pick<IPhoneOptionResposne, 'storage'>,
+      );
+      return {
+        id: option.id,
+        additionalPrice: option.additionalPrice,
+        ...detailObj,
+      };
+    });
+  }
+}
+
 export class GetProductsResponse {
   static of(
     product: WithRelations<
@@ -147,6 +275,10 @@ export class GetProductsResponse {
     switch (product.productCategory.name) {
       case ProductCategoryEnum.MAC:
         return new MacProductResponse(product, productOptions);
+      case ProductCategoryEnum.IPAD:
+        return new IPadProductResponse(product, productOptions);
+      case ProductCategoryEnum.IPHONE:
+        return new IPhoneProductResponse(product, productOptions);
       default:
         return new BaseProductResponse(product);
     }
@@ -161,4 +293,16 @@ export class MacOptionResposne {
   ram: string;
   storage: string;
   processor: string;
+}
+
+export class IPadOptionResposne {
+  id: number;
+  additionalPrice: number;
+  storage: string;
+}
+
+export class IPhoneOptionResposne {
+  id: number;
+  additionalPrice: number;
+  storage: string;
 }
