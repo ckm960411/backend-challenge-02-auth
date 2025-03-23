@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { BadRequestException } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -16,6 +18,27 @@ async function bootstrap() {
   //   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   //   exposedHeaders: ['Authorization'],
   // });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      errorHttpStatusCode: 400,
+      exceptionFactory: (errors) => {
+        const messages = errors.map((error) => ({
+          field: error.property,
+          value: error.value,
+          message: Object.values(error.constraints)[0],
+        }));
+
+        throw new BadRequestException({
+          statusCode: 400,
+          message: '잘못된 요청입니다',
+          errors: messages,
+        });
+      },
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('앱등이가되 API')
