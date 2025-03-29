@@ -16,11 +16,19 @@ export class CreateReviewReqDto {
   @IsNumber()
   productId: number;
 
+  @ApiProperty({
+    description: '평점',
+    example: 5,
+  })
   @IsNumber()
-  @Min(5)
+  @Min(0)
   @Max(5)
   rating: number;
 
+  @ApiProperty({
+    description: '리뷰 내용',
+    example: '갤럭시북이 더 좋음',
+  })
   @IsString()
   content: string;
 
