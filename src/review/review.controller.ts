@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt-auth.guard';
 import { ReviewService } from './review.service';
@@ -30,5 +38,16 @@ export class ReviewController {
   @ApiOperation({ summary: '리뷰 목록 조회' })
   async getReviewsByUserId(@User('id') userId: number) {
     return this.reviewService.getReviewsByUserId(userId);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '리뷰 상세 조회' })
+  async getReviewById(@Param('id') id: number, @User('id') userId: number) {
+    const review = await this.reviewService.getReviewById(id, userId);
+    if (!review) {
+      throw new NotFoundException('리뷰를 찾을 수 없습니다.');
+    }
+    return review;
   }
 }

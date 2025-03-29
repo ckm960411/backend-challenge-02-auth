@@ -58,4 +58,10 @@ export class ReviewService {
       },
     });
   }
+
+  async getReviewById(id: number, userId: number) {
+    return this.reviewRepository.findOne({
+      where: { id, userId },
+    });
+  }
 }
