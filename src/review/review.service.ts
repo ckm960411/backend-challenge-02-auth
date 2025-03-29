@@ -96,4 +96,11 @@ export class ReviewService {
       }
     });
   }
+
+  async deleteReview(id: number, userId: number) {
+    return this.dataSource.transaction(async (manager) => {
+      await manager.delete(ReviewPhoto, { review: { id } });
+      await manager.delete(Review, { id, userId });
+    });
+  }
 }

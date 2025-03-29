@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -62,5 +63,12 @@ export class ReviewController {
     @Body() dto: UpdateReviewReqDto,
   ) {
     return this.reviewService.updateReview(id, userId, dto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '리뷰 삭제' })
+  async deleteReview(@Param('id') id: number, @User('id') userId: number) {
+    return this.reviewService.deleteReview(id, userId);
   }
 }
