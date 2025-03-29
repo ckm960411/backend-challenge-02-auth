@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
 import { ProductModule } from './product/product.module';
 import { WishModule } from './wish/wish.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { WishModule } from './wish/wish.module';
     EmailModule,
     ProductModule,
     WishModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [AppService],

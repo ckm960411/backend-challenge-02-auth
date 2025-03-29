@@ -16,6 +16,7 @@ import { ProductColor } from './product-color.entity';
 import { ProductPhoto } from './product-photo.entity';
 import { ProductTag } from './product-tag.entity';
 import { Wish } from './wish.entity';
+import { Review } from './review.entity';
 
 @Entity()
 export class Product extends BaseEntity {
@@ -144,4 +145,11 @@ export class Product extends BaseEntity {
   @OneToMany(() => Wish, (wish) => wish.product)
   @JoinColumn()
   wishes?: Wish[];
+
+  @ApiProperty({
+    description: '상품 리뷰 목록',
+  })
+  @OneToMany(() => Review, (review) => review.product)
+  @JoinColumn()
+  reviews?: Review[];
 }
