@@ -4,6 +4,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ import { JwtAuthGuard } from 'src/auth/strategies/jwt-auth.guard';
 import { ReviewService } from './review.service';
 import { CreateReviewReqDto } from './dto/request/create-review.req.dto';
 import { User } from 'src/auth/decorators/user.decorator';
+import { UpdateReviewReqDto } from './dto/request/update-review.req.dto';
 
 @Controller('review')
 export class ReviewController {
@@ -49,5 +51,16 @@ export class ReviewController {
       throw new NotFoundException('리뷰를 찾을 수 없습니다.');
     }
     return review;
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '리뷰 수정' })
+  async updateReview(
+    @Param('id') id: number,
+    @User('id') userId: number,
+    @Body() dto: UpdateReviewReqDto,
+  ) {
+    return this.reviewService.updateReview(id, userId, dto);
   }
 }
