@@ -36,6 +36,7 @@ export class ReviewService {
       const review = await manager.save(Review, {
         rating: rating,
         content: content,
+        userId: userId,
         user: { id: userId },
         product: { id: productId },
       });
@@ -47,6 +48,14 @@ export class ReviewService {
           review: { id: review.id },
         })),
       );
+    });
+  }
+
+  async getReviewsByUserId(userId: number) {
+    return this.reviewRepository.find({
+      where: {
+        userId,
+      },
     });
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt-auth.guard';
 import { ReviewService } from './review.service';
@@ -23,5 +23,12 @@ export class ReviewController {
       content: dto.content,
       photos: dto.photos,
     });
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '리뷰 목록 조회' })
+  async getReviewsByUserId(@User('id') userId: number) {
+    return this.reviewService.getReviewsByUserId(userId);
   }
 }

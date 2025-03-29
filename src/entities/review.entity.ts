@@ -27,6 +27,12 @@ export class Review extends BaseEntity {
   content: string;
 
   @ApiProperty({
+    description: '리뷰 작성자 ID',
+  })
+  @Column({ nullable: true })
+  userId: number | null;
+
+  @ApiProperty({
     description: '리뷰 작성자',
   })
   @ManyToOne(() => User, (user) => user.reviews)
