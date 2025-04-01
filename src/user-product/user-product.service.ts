@@ -19,4 +19,15 @@ export class UserProductService {
       },
     });
   }
+
+  async findUserProductById(userId: number, userProductId: number) {
+    return this.userProductRepository.findOne({
+      where: { userId, id: userProductId },
+      relations: {
+        product: true,
+        productOption: true,
+        reviews: true,
+      },
+    });
+  }
 }
