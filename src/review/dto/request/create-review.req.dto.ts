@@ -10,11 +10,11 @@ import {
 
 export class CreateReviewReqDto {
   @ApiProperty({
-    description: '상품 ID',
+    description: '유저 보유 상품 ID',
     example: 1,
   })
   @IsNumber()
-  productId: number;
+  userProductId: number;
 
   @ApiProperty({
     description: '평점',

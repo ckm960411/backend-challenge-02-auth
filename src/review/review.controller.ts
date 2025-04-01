@@ -29,7 +29,7 @@ export class ReviewController {
   ) {
     return this.reviewService.createReview({
       userId,
-      productId: dto.productId,
+      userProductId: dto.userProductId,
       rating: dto.rating,
       content: dto.content,
       photos: dto.photos,
