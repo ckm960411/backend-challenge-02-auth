@@ -22,7 +22,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-      whitelist: true,
+      whitelist: true, // class-validator 데코레이터가 없는 속성은 무시
       errorHttpStatusCode: 400,
       exceptionFactory: (errors) => {
         const messages = errors.map((error) => ({
