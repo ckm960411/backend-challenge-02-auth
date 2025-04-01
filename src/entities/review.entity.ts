@@ -5,6 +5,7 @@ import { IsNumber, IsString, Max, Min } from 'class-validator';
 import { User } from './user.entity';
 import { Product } from './product.entity';
 import { ReviewPhoto } from './review-photo.entity';
+import { UserProduct } from './user-product.entity';
 
 @Entity()
 export class Review extends BaseEntity {
@@ -49,4 +50,17 @@ export class Review extends BaseEntity {
   })
   @ManyToOne(() => Product, (product) => product.reviews)
   product: Product;
+
+  @ApiProperty({
+    description: '유저 보유 기기 ID',
+    example: 1,
+  })
+  @Column()
+  userProductId: number;
+
+  @ApiProperty({
+    description: '유저 보유 기기',
+  })
+  @ManyToOne(() => UserProduct, (userProduct) => userProduct.reviews)
+  userProduct: UserProduct;
 }

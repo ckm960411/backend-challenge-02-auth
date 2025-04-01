@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Product } from './product.entity';
 import { BaseEntity } from './base.entity';
 import { ProductOptionDetail } from './product-option-detail.entity';
+import { UserProduct } from './user-product.entity';
 
 @Entity()
 export class ProductOption extends BaseEntity {
@@ -33,4 +34,8 @@ export class ProductOption extends BaseEntity {
     (productOptionDetail) => productOptionDetail.productOption,
   )
   productOptionDetails?: ProductOptionDetail[];
+
+  @OneToMany(() => UserProduct, (userProduct) => userProduct.productOption)
+  @JoinColumn()
+  userProducts?: UserProduct[];
 }

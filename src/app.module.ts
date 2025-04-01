@@ -10,6 +10,7 @@ import { ProductModule } from './product/product.module';
 import { WishModule } from './wish/wish.module';
 import { ReviewModule } from './review/review.module';
 import { AwsModule } from './aws/aws.module';
+import { UserProductModule } from './user-product/user-product.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AwsModule } from './aws/aws.module';
     WishModule,
     ReviewModule,
     AwsModule,
+    UserProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],

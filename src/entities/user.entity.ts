@@ -4,6 +4,7 @@ import { SigninMethod } from 'src/auth/types/enum/signin-method.enum';
 import { Wish } from './wish.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { Review } from './review.entity';
+import { UserProduct } from './user-product.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -39,4 +40,11 @@ export class User extends BaseEntity {
   @OneToMany(() => Review, (review) => review.user)
   @JoinColumn()
   reviews: Review[];
+
+  @ApiProperty({
+    description: '유저 보유 상품 목록',
+  })
+  @OneToMany(() => UserProduct, (userProduct) => userProduct.user)
+  @JoinColumn()
+  userProducts: UserProduct[];
 }
