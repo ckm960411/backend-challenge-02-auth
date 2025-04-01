@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -58,5 +59,15 @@ export class UserProductController {
       userProductId,
       dto,
     );
+  }
+
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '유저 보유 상품 삭제' })
+  async deleteUserProduct(
+    @User('id') userId: number,
+    @Param('id') userProductId: number,
+  ) {
+    return this.userProductService.deleteUserProduct(userId, userProductId);
   }
 }

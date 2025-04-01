@@ -69,4 +69,18 @@ export class UserProductService {
       where: { userId, id: userProductId },
     });
   }
+
+  async deleteUserProduct(userId: number, userProductId: number) {
+    const userProduct = await this.userProductRepository.findOne({
+      where: { userId, id: userProductId },
+    });
+
+    if (!userProduct) {
+      throw new NotFoundException('일치하는 상품이 없습니다.');
+    }
+
+    await this.userProductRepository.delete(userProductId);
+
+    return userProductId;
+  }
 }
