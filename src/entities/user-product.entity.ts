@@ -14,8 +14,8 @@ export class UserProduct extends BaseEntity {
     description: '구매일',
     example: '2025-01-01',
   })
-  @Column()
-  purchasedAt: string;
+  @Column({ nullable: true })
+  purchasedAt: string | null;
 
   @ApiProperty({
     description: '판매(처분)일',

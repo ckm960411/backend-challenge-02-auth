@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ApiOperation } from '@nestjs/swagger';
 import { GetProductsRequest } from './dto/request/get-products.request';
@@ -6,6 +14,9 @@ import { CreateMacProductRequest } from './dto/request/create-product/create-mac
 import { CreateProductService } from './service/create-product.service';
 import { CreateIPadProductRequest } from './dto/request/create-product/create-ipad-product.request';
 import { CreateIPhoneProductRequest } from './dto/request/create-product/create-iphone-product.request';
+import { CreateProductReviewReqDto } from './dto/request/create-product-review.req.dto';
+import { JwtAuthGuard } from 'src/auth/strategies/jwt-auth.guard';
+import { User } from 'src/auth/decorators/user.decorator';
 
 @Controller('product')
 export class ProductController {
@@ -38,5 +49,16 @@ export class ProductController {
   @Post('iphone')
   async createIPhoneProduct(@Body() dto: CreateIPhoneProductRequest) {
     return this.createProductService.createIPhoneProduct(dto);
+  }
+
+  @ApiOperation({ summary: '상품 리뷰 생성' })
+  @UseGuards(JwtAuthGuard)
+  @Post('/:productId/review')
+  async createProductReview(
+    @Param('productId') productId: number,
+    @User('id') userId: number,
+    @Body() dto: CreateProductReviewReqDto,
+  ) {
+    return this.productService.createProductReview(productId, userId, dto);
   }
 }

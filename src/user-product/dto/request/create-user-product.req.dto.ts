@@ -23,7 +23,7 @@ export class CreateUserProductReqDto {
     example: '2025-01-01',
   })
   @IsString()
-  purchasedAt: string;
+  purchasedAt?: string;
 
   @ApiProperty({
     description: '구매금액',

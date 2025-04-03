@@ -11,7 +11,10 @@ import { ProductColor } from 'src/entities/product-color.entity';
 import { ProductPhoto } from 'src/entities/product-photo.entity';
 import { ProductTag } from 'src/entities/product-tag.entity';
 import { CreateProductService } from './service/create-product.service';
-
+import { Review } from 'src/entities/review.entity';
+import { ReviewPhoto } from 'src/entities/review-photo.entity';
+import { ReviewService } from 'src/review/review.service';
+import { UserProduct } from 'src/entities/user-product.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -23,9 +26,12 @@ import { CreateProductService } from './service/create-product.service';
       ProductOption,
       ProductOptionDetail,
       ProductTag,
+      Review,
+      ReviewPhoto,
+      UserProduct,
     ]),
   ],
   controllers: [ProductController],
-  providers: [ProductService, CreateProductService],
+  providers: [ProductService, CreateProductService, ReviewService],
 })
 export class ProductModule {}

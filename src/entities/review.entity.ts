@@ -43,6 +43,11 @@ export class Review extends BaseEntity {
   @OneToMany(() => ReviewPhoto, (reviewPhoto) => reviewPhoto.review)
   @JoinColumn()
   reviewPhotos?: ReviewPhoto[];
+
+  @ApiProperty({
+    description: '리뷰 작성자',
+  })
+  @ManyToOne(() => User, (user) => user.reviews)
   user: User;
 
   @ApiProperty({
