@@ -2,6 +2,7 @@ import { map } from 'lodash';
 import { ProductCategoryEnum } from 'src/entities/enum/product-category.enum';
 import { ProductOption } from 'src/entities/product-option.entity';
 import { Product } from 'src/entities/product.entity';
+import { Review } from 'src/entities/review.entity';
 import { UserProduct } from 'src/entities/user-product.entity';
 import { Wish } from 'src/entities/wish.entity';
 import { WithRelations } from 'src/utils/types/utility/WithRelations.utility';
@@ -58,10 +59,18 @@ export class BaseProductResponse {
 
   @Column()
   wishId: number | null;
+
+  @Column()
+  reviews: ReviewResponse[];
+
   constructor(
     product: WithRelations<
       Product,
-      'productCategory' | 'productColors' | 'productTags' | 'productPhotos'
+      | 'productCategory'
+      | 'productColors'
+      | 'productTags'
+      | 'productPhotos'
+      | 'reviews'
     >,
     userProduct?: UserProduct,
     wish?: Wish,
@@ -84,6 +93,7 @@ export class BaseProductResponse {
     this.userProductId = userProduct?.id ?? null;
     this.isInWish = !!wish;
     this.wishId = wish?.id ?? null;
+    this.reviews = map(product.reviews, (review) => new ReviewResponse(review));
   }
 }
 
@@ -294,6 +304,7 @@ export class GetOneProductResponse {
       | 'productTags'
       | 'productSpecs'
       | 'productPhotos'
+      | 'reviews'
     >,
     productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
     userProduct?: UserProduct,
@@ -347,4 +358,45 @@ export class IPhoneOptionResposne {
   id: number;
   additionalPrice: number;
   storage: string;
+}
+
+export class ReviewResponse {
+  @Column()
+  id: number;
+
+  @Column()
+  createdAt: Date;
+
+  @Column()
+  updatedAt: Date;
+
+  @Column()
+  rating: number;
+
+  @Column()
+  content: string;
+
+  @Column()
+  photos: string[];
+
+  @Column()
+  userId: number;
+
+  @Column()
+  userName: string;
+
+  @Column()
+  userEmail: string;
+
+  constructor(review: WithRelations<Review, 'reviewPhotos' | 'user'>) {
+    this.id = review.id;
+    this.createdAt = review.createdAt;
+    this.updatedAt = review.updatedAt;
+    this.rating = review.rating;
+    this.content = review.content;
+    this.photos = map(review.reviewPhotos, 'url');
+    this.userId = review.user.id;
+    this.userName = review.user.name;
+    this.userEmail = review.user.email;
+  }
 }

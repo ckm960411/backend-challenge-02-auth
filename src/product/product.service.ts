@@ -86,6 +86,7 @@ export class ProductService {
       | 'productTags'
       | 'productSpecs'
       | 'productPhotos'
+      | 'reviews'
     > = await this.productRepository.findOne({
       where: {
         id: productId,
@@ -96,12 +97,28 @@ export class ProductService {
         productTags: true,
         productSpecs: true,
         productPhotos: true,
+        reviews: {
+          reviewPhotos: true,
+          user: true,
+        },
       },
     });
 
     if (!product) {
       throw new NotFoundException('상품을 찾을 수 없습니다.');
     }
+
+    const productOptions: WithRelations<
+      ProductOption,
+      'productOptionDetails'
+    >[] = await this.productOptionRepository.find({
+      where: { productId },
+      relations: {
+        productOptionDetails: true,
+      },
+    });
+
+    const groupedOptionsByProductId = groupBy(productOptions, 'productId');
 
     const userProduct = userId
       ? await this.userProductRepository.findOne({
@@ -116,18 +133,6 @@ export class ProductService {
           where: { user: { id: userId } },
         })
       : undefined;
-
-    const productOptions: WithRelations<
-      ProductOption,
-      'productOptionDetails'
-    >[] = await this.productOptionRepository.find({
-      where: { productId },
-      relations: {
-        productOptionDetails: true,
-      },
-    });
-
-    const groupedOptionsByProductId = groupBy(productOptions, 'productId');
 
     return GetOneProductResponse.of(
       product,
