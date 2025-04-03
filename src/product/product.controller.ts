@@ -37,6 +37,16 @@ export class ProductController {
     return this.productService.getProducts(query, user?.id);
   }
 
+  @ApiOperation({ summary: '상품 상세 조회' })
+  @UseGuards(OptionalJwtAuthGuard)
+  @Get('/:productId')
+  async getProductById(
+    @Param('productId') productId: number,
+    @UserDecorator() user: User | null,
+  ) {
+    return this.productService.getProductById(productId, user?.id);
+  }
+
   @Post('category')
   async createProductCategories() {
     return this.productService.createProductCategories();

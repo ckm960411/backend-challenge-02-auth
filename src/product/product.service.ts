@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { ProductCategoryEnum } from 'src/entities/enum/product-category.enum';
 import { Product } from 'src/entities/product.entity';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { GetProductsResponse } from './dto/response/get-products.response';
 import { WithRelations } from 'src/utils/types/utility/WithRelations.utility';
 import { ProductOption } from 'src/entities/product-option.entity';
@@ -72,13 +72,55 @@ export class ProductService {
         })
       : [];
 
+    return products.map((product) =>
+      GetProductsResponse.of(product, userProducts, wishes),
+    );
+  }
+
+  async getProductById(productId: number, userId?: number) {
+    const product: WithRelations<
+      Product,
+      | 'productCategory'
+      | 'productColors'
+      | 'productTags'
+      | 'productSpecs'
+      | 'productPhotos'
+    > = await this.productRepository.findOne({
+      where: {
+        id: productId,
+      },
+      relations: {
+        productCategory: true,
+        productColors: true,
+        productTags: true,
+        productSpecs: true,
+        productPhotos: true,
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException('상품을 찾을 수 없습니다.');
+    }
+
+    const userProducts = userId
+      ? await this.userProductRepository.find({
+          where: {
+            userId,
+          },
+        })
+      : [];
+
+    const wishes = userId
+      ? await this.wishRepository.find({
+          where: { user: { id: userId } },
+        })
+      : [];
+
     const productOptions: WithRelations<
       ProductOption,
       'productOptionDetails'
     >[] = await this.productOptionRepository.find({
-      where: {
-        productId: In(products.map((product) => product.id)),
-      },
+      where: { productId },
       relations: {
         productOptionDetails: true,
       },
@@ -86,13 +128,11 @@ export class ProductService {
 
     const groupedOptionsByProductId = groupBy(productOptions, 'productId');
 
-    return products.map((product) =>
-      GetProductsResponse.of(
-        product,
-        userProducts,
-        wishes,
-        groupedOptionsByProductId[product.id],
-      ),
+    return GetProductsResponse.of(
+      product,
+      userProducts,
+      wishes,
+      groupedOptionsByProductId[product.id],
     );
   }
 
