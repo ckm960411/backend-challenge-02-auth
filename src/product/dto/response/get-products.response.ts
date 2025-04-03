@@ -2,6 +2,8 @@ import { map } from 'lodash';
 import { ProductCategoryEnum } from 'src/entities/enum/product-category.enum';
 import { ProductOption } from 'src/entities/product-option.entity';
 import { Product } from 'src/entities/product.entity';
+import { UserProduct } from 'src/entities/user-product.entity';
+import { Wish } from 'src/entities/wish.entity';
 import { WithRelations } from 'src/utils/types/utility/WithRelations.utility';
 import { Column } from 'typeorm';
 
@@ -45,11 +47,19 @@ export class BaseProductResponse {
   @Column()
   tags: string[];
 
+  @Column()
+  isPurchased: boolean;
+
+  @Column()
+  isInWish: boolean;
+
   constructor(
     product: WithRelations<
       Product,
       'productCategory' | 'productColors' | 'productTags' | 'productPhotos'
     >,
+    userProducts?: UserProduct[],
+    wishes?: Wish[],
   ) {
     this.id = product.id;
     this.name = product.name;
@@ -65,6 +75,12 @@ export class BaseProductResponse {
       name: color.name,
       code: color.code,
     }));
+    this.isPurchased = userProducts
+      ? userProducts.some((userProduct) => userProduct.productId === product.id)
+      : false;
+    this.isInWish = wishes
+      ? wishes.some((wish) => wish.productId === product.id)
+      : false;
   }
 }
 
@@ -93,9 +109,11 @@ export class MacProductResponse extends BaseProductResponse {
       | 'productSpecs'
       | 'productPhotos'
     >,
-    productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
+    userProducts?: UserProduct[],
+    wishes?: Wish[],
+    productOptions?: WithRelations<ProductOption, 'productOptionDetails'>[],
   ) {
-    super(product);
+    super(product, userProducts, wishes);
     product.productSpecs.forEach(({ type, value }) => {
       if (
         [
@@ -162,9 +180,11 @@ export class IPadProductResponse extends BaseProductResponse {
       | 'productSpecs'
       | 'productPhotos'
     >,
-    productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
+    userProducts?: UserProduct[],
+    wishes?: Wish[],
+    productOptions?: WithRelations<ProductOption, 'productOptionDetails'>[],
   ) {
-    super(product);
+    super(product, userProducts, wishes);
     product.productSpecs.forEach(({ type, value }) => {
       if (
         [
@@ -225,9 +245,11 @@ export class IPhoneProductResponse extends BaseProductResponse {
       | 'productSpecs'
       | 'productPhotos'
     >,
-    productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
+    userProducts?: UserProduct[],
+    wishes?: Wish[],
+    productOptions?: WithRelations<ProductOption, 'productOptionDetails'>[],
   ) {
-    super(product);
+    super(product, userProducts, wishes);
     product.productSpecs.forEach(({ type, value }) => {
       if (
         [
@@ -270,17 +292,38 @@ export class GetProductsResponse {
       | 'productSpecs'
       | 'productPhotos'
     >,
+    userProducts?: UserProduct[],
+    wishes?: Wish[],
     productOptions?: WithRelations<ProductOption, 'productOptionDetails'>[],
   ) {
+    if (!productOptions) {
+      return new BaseProductResponse(product, userProducts, wishes);
+    }
+
     switch (product.productCategory.name) {
       case ProductCategoryEnum.MAC:
-        return new MacProductResponse(product, productOptions);
+        return new MacProductResponse(
+          product,
+          userProducts,
+          wishes,
+          productOptions,
+        );
       case ProductCategoryEnum.IPAD:
-        return new IPadProductResponse(product, productOptions);
+        return new IPadProductResponse(
+          product,
+          userProducts,
+          wishes,
+          productOptions,
+        );
       case ProductCategoryEnum.IPHONE:
-        return new IPhoneProductResponse(product, productOptions);
+        return new IPhoneProductResponse(
+          product,
+          userProducts,
+          wishes,
+          productOptions,
+        );
       default:
-        return new BaseProductResponse(product);
+        return new BaseProductResponse(product, userProducts, wishes);
     }
   }
 }

@@ -15,6 +15,7 @@ import { Review } from 'src/entities/review.entity';
 import { ReviewPhoto } from 'src/entities/review-photo.entity';
 import { ReviewService } from 'src/review/review.service';
 import { UserProduct } from 'src/entities/user-product.entity';
+import { Wish } from 'src/entities/wish.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -29,6 +30,7 @@ import { UserProduct } from 'src/entities/user-product.entity';
       Review,
       ReviewPhoto,
       UserProduct,
+      Wish,
     ]),
   ],
   controllers: [ProductController],

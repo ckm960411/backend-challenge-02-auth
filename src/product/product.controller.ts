@@ -16,7 +16,9 @@ import { CreateIPadProductRequest } from './dto/request/create-product/create-ip
 import { CreateIPhoneProductRequest } from './dto/request/create-product/create-iphone-product.request';
 import { CreateProductReviewReqDto } from './dto/request/create-product-review.req.dto';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt-auth.guard';
-import { User } from 'src/auth/decorators/user.decorator';
+import { User as UserDecorator } from 'src/auth/decorators/user.decorator';
+import { OptionalJwtAuthGuard } from 'src/auth/strategies/optional-jwt-auth.guard';
+import { User } from 'src/entities/user.entity';
 
 @Controller('product')
 export class ProductController {
@@ -26,9 +28,13 @@ export class ProductController {
   ) {}
 
   @ApiOperation({ summary: '상품 목록 조회' })
+  @UseGuards(OptionalJwtAuthGuard)
   @Get()
-  async getProducts(@Query() query: GetProductsRequest) {
-    return this.productService.getProducts(query);
+  async getProducts(
+    @Query() query: GetProductsRequest,
+    @UserDecorator() user: User | null,
+  ) {
+    return this.productService.getProducts(query, user?.id);
   }
 
   @Post('category')
@@ -56,7 +62,7 @@ export class ProductController {
   @Post('/:productId/review')
   async createProductReview(
     @Param('productId') productId: number,
-    @User('id') userId: number,
+    @UserDecorator('id') userId: number,
     @Body() dto: CreateProductReviewReqDto,
   ) {
     return this.productService.createProductReview(productId, userId, dto);

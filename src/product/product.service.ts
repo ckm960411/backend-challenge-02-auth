@@ -12,6 +12,8 @@ import { CreateProductReviewReqDto } from './dto/request/create-product-review.r
 import { Review } from 'src/entities/review.entity';
 import { ReviewPhoto } from 'src/entities/review-photo.entity';
 import { UserProduct } from 'src/entities/user-product.entity';
+import { GetProductsRequest } from './dto/request/get-products.request';
+import { Wish } from 'src/entities/wish.entity';
 
 @Injectable()
 export class ProductService {
@@ -28,17 +30,13 @@ export class ProductService {
     private readonly reviewPhotoRepository: Repository<ReviewPhoto>,
     @InjectRepository(UserProduct)
     private readonly userProductRepository: Repository<UserProduct>,
+    @InjectRepository(Wish)
+    private readonly wishRepository: Repository<Wish>,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
 
-  async getProducts({
-    category,
-    tag,
-  }: {
-    category: ProductCategoryEnum;
-    tag?: string;
-  }) {
+  async getProducts({ category, tag }: GetProductsRequest, userId?: number) {
     const products: WithRelations<
       Product,
       | 'productCategory'
@@ -60,6 +58,20 @@ export class ProductService {
       },
     });
 
+    const userProducts = userId
+      ? await this.userProductRepository.find({
+          where: {
+            userId,
+          },
+        })
+      : [];
+
+    const wishes = userId
+      ? await this.wishRepository.find({
+          where: { user: { id: userId } },
+        })
+      : [];
+
     const productOptions: WithRelations<
       ProductOption,
       'productOptionDetails'
@@ -75,7 +87,12 @@ export class ProductService {
     const groupedOptionsByProductId = groupBy(productOptions, 'productId');
 
     return products.map((product) =>
-      GetProductsResponse.of(product, groupedOptionsByProductId[product.id]),
+      GetProductsResponse.of(
+        product,
+        userProducts,
+        wishes,
+        groupedOptionsByProductId[product.id],
+      ),
     );
   }
 

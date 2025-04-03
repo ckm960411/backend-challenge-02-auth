@@ -19,6 +19,12 @@ export class Wish extends BaseEntity {
   user: User;
 
   @ApiProperty({
+    description: '위시 리스트 상품 아이디',
+  })
+  @Column()
+  productId: number;
+
+  @ApiProperty({
     description: '상품',
   })
   @ManyToOne(() => Product, (product) => product.wishes)
