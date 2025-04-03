@@ -51,8 +51,13 @@ export class BaseProductResponse {
   isPurchased: boolean;
 
   @Column()
+  userProductId: number | null;
+
+  @Column()
   isInWish: boolean;
 
+  @Column()
+  wishId: number | null;
   constructor(
     product: WithRelations<
       Product,
@@ -75,12 +80,20 @@ export class BaseProductResponse {
       name: color.name,
       code: color.code,
     }));
-    this.isPurchased = userProducts
-      ? userProducts.some((userProduct) => userProduct.productId === product.id)
-      : false;
-    this.isInWish = wishes
-      ? wishes.some((wish) => wish.productId === product.id)
-      : false;
+
+    const userProduct =
+      userProducts?.find(
+        (userProduct) => userProduct.productId === product.id,
+      ) ?? null;
+    this.isPurchased = !!userProduct;
+    this.userProductId = userProduct?.id ?? null;
+
+    const wish =
+      wishes?.find((wish) => {
+        return wish.productId === product.id;
+      }) ?? null;
+    this.isInWish = !!wish;
+    this.wishId = wish?.id ?? null;
   }
 }
 
