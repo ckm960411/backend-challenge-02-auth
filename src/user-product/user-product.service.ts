@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserProduct } from 'src/entities/user-product.entity';
 import { Repository } from 'typeorm';
@@ -34,6 +38,18 @@ export class UserProductService {
   }
 
   async createUserProduct(userId: number, dto: CreateUserProductReqDto) {
+    if (
+      !!(await this.userProductRepository.findOne({
+        where: {
+          userId,
+          productId: dto.productId,
+          productOptionId: dto.productOptionId,
+        },
+      }))
+    ) {
+      throw new BadRequestException('이미 보유 상품으로 등록한 상품입니다.');
+    }
+
     const userProduct = this.userProductRepository.create({
       userId,
       productId: dto.productId,

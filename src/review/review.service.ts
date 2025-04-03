@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { map } from 'lodash';
 import { ReviewPhoto } from 'src/entities/review-photo.entity';
@@ -36,6 +40,10 @@ export class ReviewService {
 
       if (!userProduct) {
         throw new NotFoundException('일치하는 상품이 없습니다.');
+      }
+
+      if (!!(await manager.findOne(Review, { where: { userProductId } }))) {
+        throw new BadRequestException('이미 리뷰를 작성한 상품입니다.');
       }
 
       const review = await manager.save(Review, {

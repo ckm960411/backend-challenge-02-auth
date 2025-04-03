@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Wish } from 'src/entities/wish.entity';
 import { Repository } from 'typeorm';
@@ -20,6 +24,17 @@ export class WishService {
 
     if (!product) {
       throw new NotFoundException(`ID ${productId} 상품을 찾을 수 없습니다. `);
+    }
+
+    if (
+      !!(await this.wishRepository.findOne({
+        where: {
+          user: { id: userId },
+          product: { id: productId },
+        },
+      }))
+    ) {
+      throw new BadRequestException('이미 위시리스트에 등록된 상품입니다.');
     }
 
     const wish = this.wishRepository.create({
