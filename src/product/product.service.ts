@@ -14,6 +14,7 @@ import { ReviewPhoto } from 'src/entities/review-photo.entity';
 import { UserProduct } from 'src/entities/user-product.entity';
 import { GetProductsRequest } from './dto/request/get-products.request';
 import { Wish } from 'src/entities/wish.entity';
+import { GetOneProductResponse } from './dto/response/get-one-product.response';
 
 @Injectable()
 export class ProductService {
@@ -102,19 +103,19 @@ export class ProductService {
       throw new NotFoundException('상품을 찾을 수 없습니다.');
     }
 
-    const userProducts = userId
-      ? await this.userProductRepository.find({
+    const userProduct = userId
+      ? await this.userProductRepository.findOne({
           where: {
             userId,
           },
         })
-      : [];
+      : undefined;
 
-    const wishes = userId
-      ? await this.wishRepository.find({
+    const wish = userId
+      ? await this.wishRepository.findOne({
           where: { user: { id: userId } },
         })
-      : [];
+      : undefined;
 
     const productOptions: WithRelations<
       ProductOption,
@@ -128,11 +129,11 @@ export class ProductService {
 
     const groupedOptionsByProductId = groupBy(productOptions, 'productId');
 
-    return GetProductsResponse.of(
+    return GetOneProductResponse.of(
       product,
-      userProducts,
-      wishes,
       groupedOptionsByProductId[product.id],
+      userProduct,
+      wish,
     );
   }
 
