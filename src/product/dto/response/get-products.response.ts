@@ -1,13 +1,11 @@
 import { map } from 'lodash';
-import { ProductCategoryEnum } from 'src/entities/enum/product-category.enum';
-import { ProductOption } from 'src/entities/product-option.entity';
 import { Product } from 'src/entities/product.entity';
 import { UserProduct } from 'src/entities/user-product.entity';
 import { Wish } from 'src/entities/wish.entity';
 import { WithRelations } from 'src/utils/types/utility/WithRelations.utility';
 import { Column } from 'typeorm';
 
-export class BaseProductResponse {
+export class GetProductsResponse {
   @Column()
   id: number;
 
@@ -58,13 +56,14 @@ export class BaseProductResponse {
 
   @Column()
   wishId: number | null;
+
   constructor(
     product: WithRelations<
       Product,
       'productCategory' | 'productColors' | 'productTags' | 'productPhotos'
     >,
-    userProducts?: UserProduct[],
-    wishes?: Wish[],
+    userProducts: UserProduct[],
+    wishes: Wish[],
   ) {
     this.id = product.id;
     this.name = product.name;
@@ -95,207 +94,7 @@ export class BaseProductResponse {
     this.isInWish = !!wish;
     this.wishId = wish?.id ?? null;
   }
-}
 
-export class MacProductResponse extends BaseProductResponse {
-  @Column()
-  displaySize: string | null;
-
-  @Column()
-  displayHorizontalPixel: string | null;
-
-  @Column()
-  displayVerticalPixel: string | null;
-
-  @Column()
-  displayBrightness: string | null;
-
-  @Column()
-  options: MacOptionResposne[];
-
-  constructor(
-    product: WithRelations<
-      Product,
-      | 'productCategory'
-      | 'productColors'
-      | 'productTags'
-      | 'productSpecs'
-      | 'productPhotos'
-    >,
-    userProducts?: UserProduct[],
-    wishes?: Wish[],
-    productOptions?: WithRelations<ProductOption, 'productOptionDetails'>[],
-  ) {
-    super(product, userProducts, wishes);
-    product.productSpecs.forEach(({ type, value }) => {
-      if (
-        [
-          'displaySize',
-          'displayHorizontalPixel',
-          'displayVerticalPixel',
-          'displayBrightness',
-        ].includes(type)
-      ) {
-        this[type] = value;
-      }
-    });
-    this.options = map(productOptions, (option) => {
-      const detailObj = option.productOptionDetails.reduce(
-        (obj, detail) => {
-          if (
-            ['cpu', 'gpu', 'ram', 'storage', 'processor'].includes(detail.type)
-          ) {
-            obj[detail.type] = detail.value;
-          }
-          return obj;
-        },
-        {} as Pick<
-          MacOptionResposne,
-          'cpu' | 'gpu' | 'ram' | 'storage' | 'processor'
-        >,
-      );
-      return {
-        id: option.id,
-        additionalPrice: option.additionalPrice,
-        ...detailObj,
-      };
-    });
-  }
-}
-
-export class IPadProductResponse extends BaseProductResponse {
-  @Column()
-  processor: string | null;
-
-  @Column()
-  network: string | null;
-
-  @Column()
-  displaySize: string | null;
-
-  @Column()
-  displayHorizontalPixel: string | null;
-
-  @Column()
-  displayVerticalPixel: string | null;
-
-  @Column()
-  displayBrightness: string | null;
-
-  @Column()
-  options: IPadOptionResposne[];
-  constructor(
-    product: WithRelations<
-      Product,
-      | 'productCategory'
-      | 'productColors'
-      | 'productTags'
-      | 'productSpecs'
-      | 'productPhotos'
-    >,
-    userProducts?: UserProduct[],
-    wishes?: Wish[],
-    productOptions?: WithRelations<ProductOption, 'productOptionDetails'>[],
-  ) {
-    super(product, userProducts, wishes);
-    product.productSpecs.forEach(({ type, value }) => {
-      if (
-        [
-          'processor',
-          'network',
-          'displaySize',
-          'displayHorizontalPixel',
-          'displayVerticalPixel',
-          'displayBrightness',
-        ].includes(type)
-      ) {
-        this[type] = value;
-      }
-    });
-    this.options = map(productOptions, (option) => {
-      const detailObj = option.productOptionDetails.reduce(
-        (obj, detail) => {
-          if (['storage'].includes(detail.type)) {
-            obj[detail.type] = detail.value;
-          }
-          return obj;
-        },
-        {} as Pick<IPadOptionResposne, 'storage'>,
-      );
-      return {
-        id: option.id,
-        additionalPrice: option.additionalPrice,
-        ...detailObj,
-      };
-    });
-  }
-}
-
-export class IPhoneProductResponse extends BaseProductResponse {
-  @Column()
-  processor: string | null;
-
-  @Column()
-  displaySize: string | null;
-
-  @Column()
-  displayHorizontalPixel: string | null;
-
-  @Column()
-  displayVerticalPixel: string | null;
-
-  @Column()
-  displayBrightness: string | null;
-
-  @Column()
-  options: IPadOptionResposne[];
-  constructor(
-    product: WithRelations<
-      Product,
-      | 'productCategory'
-      | 'productColors'
-      | 'productTags'
-      | 'productSpecs'
-      | 'productPhotos'
-    >,
-    userProducts?: UserProduct[],
-    wishes?: Wish[],
-    productOptions?: WithRelations<ProductOption, 'productOptionDetails'>[],
-  ) {
-    super(product, userProducts, wishes);
-    product.productSpecs.forEach(({ type, value }) => {
-      if (
-        [
-          'processor',
-          'displaySize',
-          'displayHorizontalPixel',
-          'displayVerticalPixel',
-          'displayBrightness',
-        ].includes(type)
-      ) {
-        this[type] = value;
-      }
-    });
-    this.options = map(productOptions, (option) => {
-      const detailObj = option.productOptionDetails.reduce(
-        (obj, detail) => {
-          if (['storage'].includes(detail.type)) {
-            obj[detail.type] = detail.value;
-          }
-          return obj;
-        },
-        {} as Pick<IPhoneOptionResposne, 'storage'>,
-      );
-      return {
-        id: option.id,
-        additionalPrice: option.additionalPrice,
-        ...detailObj,
-      };
-    });
-  }
-}
-
-export class GetProductsResponse {
   static of(
     product: WithRelations<
       Product,
@@ -305,60 +104,9 @@ export class GetProductsResponse {
       | 'productSpecs'
       | 'productPhotos'
     >,
-    userProducts?: UserProduct[],
-    wishes?: Wish[],
-    productOptions?: WithRelations<ProductOption, 'productOptionDetails'>[],
+    userProducts: UserProduct[],
+    wishes: Wish[],
   ) {
-    if (!productOptions) {
-      return new BaseProductResponse(product, userProducts, wishes);
-    }
-
-    switch (product.productCategory.name) {
-      case ProductCategoryEnum.MAC:
-        return new MacProductResponse(
-          product,
-          userProducts,
-          wishes,
-          productOptions,
-        );
-      case ProductCategoryEnum.IPAD:
-        return new IPadProductResponse(
-          product,
-          userProducts,
-          wishes,
-          productOptions,
-        );
-      case ProductCategoryEnum.IPHONE:
-        return new IPhoneProductResponse(
-          product,
-          userProducts,
-          wishes,
-          productOptions,
-        );
-      default:
-        return new BaseProductResponse(product, userProducts, wishes);
-    }
+    return new GetProductsResponse(product, userProducts, wishes);
   }
-}
-
-export class MacOptionResposne {
-  id: number;
-  additionalPrice: number;
-  cpu: string;
-  gpu: string;
-  ram: string;
-  storage: string;
-  processor: string;
-}
-
-export class IPadOptionResposne {
-  id: number;
-  additionalPrice: number;
-  storage: string;
-}
-
-export class IPhoneOptionResposne {
-  id: number;
-  additionalPrice: number;
-  storage: string;
 }

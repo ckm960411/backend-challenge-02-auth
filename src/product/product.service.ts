@@ -10,7 +10,6 @@ import { filter, groupBy, map } from 'lodash';
 import { ProductCategory } from 'src/entities/product-category.entity';
 import { CreateProductReviewReqDto } from './dto/request/create-product-review.req.dto';
 import { Review } from 'src/entities/review.entity';
-import { ReviewPhoto } from 'src/entities/review-photo.entity';
 import { UserProduct } from 'src/entities/user-product.entity';
 import { GetProductsRequest } from './dto/request/get-products.request';
 import { Wish } from 'src/entities/wish.entity';
@@ -25,10 +24,6 @@ export class ProductService {
     private readonly productOptionRepository: Repository<ProductOption>,
     @InjectRepository(ProductCategory)
     private readonly productCategoryRepository: Repository<ProductCategory>,
-    @InjectRepository(Review)
-    private readonly reviewRepository: Repository<Review>,
-    @InjectRepository(ReviewPhoto)
-    private readonly reviewPhotoRepository: Repository<ReviewPhoto>,
     @InjectRepository(UserProduct)
     private readonly userProductRepository: Repository<UserProduct>,
     @InjectRepository(Wish)
