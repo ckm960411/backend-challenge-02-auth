@@ -69,6 +69,7 @@ export class UserProductService {
       where: { userProduct: { id: userProductId } },
       relations: {
         reviewPhotos: true,
+        user: true,
       },
     });
 

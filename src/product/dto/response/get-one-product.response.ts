@@ -5,6 +5,7 @@ import { Product } from 'src/entities/product.entity';
 import { Review } from 'src/entities/review.entity';
 import { UserProduct } from 'src/entities/user-product.entity';
 import { Wish } from 'src/entities/wish.entity';
+import { ReviewResponse } from 'src/review/dto/response/get-review.response';
 import { WithRelations } from 'src/utils/types/utility/WithRelations.utility';
 import { Column } from 'typeorm';
 
@@ -417,45 +418,4 @@ export interface IPhoneOptionResposne {
   additionalPrice: number;
   storage: string;
   optionSpecs: { type: string; value: string }[];
-}
-
-export class ReviewResponse {
-  @Column()
-  id: number;
-
-  @Column()
-  createdAt: Date;
-
-  @Column()
-  updatedAt: Date;
-
-  @Column()
-  rating: number;
-
-  @Column()
-  content: string;
-
-  @Column()
-  photos: string[];
-
-  @Column()
-  userId: number;
-
-  @Column()
-  userName: string;
-
-  @Column()
-  userEmail: string;
-
-  constructor(review: WithRelations<Review, 'reviewPhotos' | 'user'>) {
-    this.id = review.id;
-    this.createdAt = review.createdAt;
-    this.updatedAt = review.updatedAt;
-    this.rating = review.rating;
-    this.content = review.content;
-    this.photos = map(review.reviewPhotos, 'url');
-    this.userId = review.user.id;
-    this.userName = review.user.name;
-    this.userEmail = review.user.email;
-  }
 }

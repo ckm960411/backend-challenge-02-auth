@@ -1,9 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { map } from 'lodash';
 import { UserProductCondition } from 'src/entities/enum/user-product-condition.enum';
 import { UserProductStatus } from 'src/entities/enum/user-product-status.enum';
 import { Review } from 'src/entities/review.entity';
 import { UserProduct } from 'src/entities/user-product.entity';
 import { GetOneProductResponse } from 'src/product/dto/response/get-one-product.response';
+import { ReviewResponse } from 'src/review/dto/response/get-review.response';
 import { WithRelations } from 'src/utils/types/utility/WithRelations.utility';
 import { Column } from 'typeorm';
 
@@ -92,7 +94,7 @@ export class GetUserProductResponse {
   @ApiProperty({
     description: '리뷰 목록',
   })
-  reviews: Review[];
+  reviews: ReviewResponse[];
 
   constructor(
     userProduct: WithRelations<UserProduct, 'product' | 'productOption'>,
@@ -109,6 +111,6 @@ export class GetUserProductResponse {
     this.product = GetOneProductResponse.of(userProduct.product, [], {
       myOption: userProduct.productOption,
     });
-    this.reviews = reviews;
+    this.reviews = map(reviews, (review) => new ReviewResponse(review));
   }
 }

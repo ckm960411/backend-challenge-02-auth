@@ -122,6 +122,10 @@ export class ProductService {
             product: { id: productId },
             user: { id: userId },
           },
+          relations: {
+            reviewPhotos: true,
+            user: true,
+          },
         })
       : [];
 
