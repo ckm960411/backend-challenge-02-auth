@@ -28,6 +28,8 @@ export class ProductService {
     private readonly userProductRepository: Repository<UserProduct>,
     @InjectRepository(Wish)
     private readonly wishRepository: Repository<Wish>,
+    @InjectRepository(Review)
+    private readonly reviewRepository: Repository<Review>,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
@@ -81,7 +83,6 @@ export class ProductService {
       | 'productTags'
       | 'productSpecs'
       | 'productPhotos'
-      | 'reviews'
     > = await this.productRepository.findOne({
       where: {
         id: productId,
@@ -115,6 +116,15 @@ export class ProductService {
 
     const groupedOptionsByProductId = groupBy(productOptions, 'productId');
 
+    const reviews = userId
+      ? await this.reviewRepository.find({
+          where: {
+            product: { id: productId },
+            user: { id: userId },
+          },
+        })
+      : [];
+
     const userProduct = userId
       ? await this.userProductRepository.findOne({
           where: {
@@ -132,8 +142,11 @@ export class ProductService {
     return GetOneProductResponse.of(
       product,
       groupedOptionsByProductId[product.id],
-      userProduct,
-      wish,
+      {
+        reviews,
+        userProduct,
+        wish,
+      },
     );
   }
 

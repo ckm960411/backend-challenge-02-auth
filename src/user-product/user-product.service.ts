@@ -8,33 +8,71 @@ import { UserProduct } from 'src/entities/user-product.entity';
 import { Repository } from 'typeorm';
 import { CreateUserProductReqDto } from './dto/request/create-user-product.req.dto';
 import { UpdateUserProductReqDto } from './dto/request/update-user-product.req.dto';
+import { map } from 'lodash';
+import { GetUserProductResponse } from './dto/response/get-user-product.response';
+import { Review } from 'src/entities/review.entity';
 
 @Injectable()
 export class UserProductService {
   constructor(
     @InjectRepository(UserProduct)
     private userProductRepository: Repository<UserProduct>,
+    @InjectRepository(Review)
+    private reviewRepository: Repository<Review>,
   ) {}
 
   async findAllUserProducts(userId: number) {
-    return this.userProductRepository.find({
+    const userProducts = await this.userProductRepository.find({
       where: { userId },
       relations: {
-        product: true,
-        productOption: true,
+        product: {
+          productCategory: true,
+          productTags: true,
+          productSpecs: true,
+          productPhotos: true,
+          productColors: true,
+        },
+        productOption: {
+          productOptionDetails: true,
+        },
       },
     });
+
+    return map(
+      userProducts,
+      (userProduct) => new GetUserProductResponse(userProduct),
+    );
   }
 
   async findUserProductById(userId: number, userProductId: number) {
-    return this.userProductRepository.findOne({
+    const up = await this.userProductRepository.findOne({
       where: { userId, id: userProductId },
       relations: {
-        product: true,
-        productOption: true,
-        reviews: true,
+        product: {
+          productCategory: true,
+          productTags: true,
+          productSpecs: true,
+          productPhotos: true,
+          productColors: true,
+        },
+        productOption: {
+          productOptionDetails: true,
+        },
       },
     });
+
+    if (!up) {
+      throw new NotFoundException('일치하는 상품이 없습니다.');
+    }
+
+    const reviews = await this.reviewRepository.find({
+      where: { userProduct: { id: userProductId } },
+      relations: {
+        reviewPhotos: true,
+      },
+    });
+
+    return new GetUserProductResponse(up, reviews);
   }
 
   async createUserProduct(userId: number, dto: CreateUserProductReqDto) {

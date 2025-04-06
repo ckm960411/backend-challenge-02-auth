@@ -63,6 +63,9 @@ export class BaseProductResponse {
   @Column()
   reviews: ReviewResponse[];
 
+  @Column()
+  specs: { type: string; value: string }[];
+
   constructor(
     product: WithRelations<
       Product,
@@ -72,8 +75,12 @@ export class BaseProductResponse {
       | 'productPhotos'
       | 'reviews'
     >,
-    userProduct?: UserProduct,
-    wish?: Wish,
+    select?: {
+      myOption?: WithRelations<ProductOption, 'productOptionDetails'>;
+      reviews?: Review[];
+      userProduct?: UserProduct;
+      wish?: Wish;
+    },
   ) {
     this.id = product.id;
     this.name = product.name;
@@ -89,11 +96,15 @@ export class BaseProductResponse {
       name: color.name,
       code: color.code,
     }));
-    this.isPurchased = !!userProduct;
-    this.userProductId = userProduct?.id ?? null;
-    this.isInWish = !!wish;
-    this.wishId = wish?.id ?? null;
+    this.isPurchased = !!select?.userProduct;
+    this.userProductId = select?.userProduct?.id ?? null;
+    this.isInWish = !!select?.wish;
+    this.wishId = select?.wish?.id ?? null;
     this.reviews = map(product.reviews, (review) => new ReviewResponse(review));
+    this.specs = map(product.productSpecs, (spec) => ({
+      type: spec.type,
+      value: spec.value,
+    }));
   }
 }
 
@@ -113,6 +124,9 @@ export class MacProductResponse extends BaseProductResponse {
   @Column()
   options: MacOptionResposne[];
 
+  @Column()
+  myOption: MacOptionResposne | null;
+
   constructor(
     product: WithRelations<
       Product,
@@ -123,10 +137,14 @@ export class MacProductResponse extends BaseProductResponse {
       | 'productPhotos'
     >,
     productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
-    userProduct?: UserProduct,
-    wish?: Wish,
+    select?: {
+      myOption?: WithRelations<ProductOption, 'productOptionDetails'>;
+      reviews?: Review[];
+      userProduct?: UserProduct;
+      wish?: Wish;
+    },
   ) {
-    super(product, userProduct, wish);
+    super(product, select);
     product.productSpecs.forEach(({ type, value }) => {
       if (
         [
@@ -139,27 +157,38 @@ export class MacProductResponse extends BaseProductResponse {
         this[type] = value;
       }
     });
-    this.options = map(productOptions, (option) => {
-      const detailObj = option.productOptionDetails.reduce(
-        (obj, detail) => {
-          if (
-            ['cpu', 'gpu', 'ram', 'storage', 'processor'].includes(detail.type)
-          ) {
-            obj[detail.type] = detail.value;
-          }
-          return obj;
-        },
-        {} as Pick<
-          MacOptionResposne,
-          'cpu' | 'gpu' | 'ram' | 'storage' | 'processor'
-        >,
-      );
-      return {
-        id: option.id,
-        additionalPrice: option.additionalPrice,
-        ...detailObj,
-      };
-    });
+    this.options = map(productOptions, (option) => this.getOptionObj(option));
+    this.myOption = select?.myOption
+      ? this.getOptionObj(select.myOption)
+      : null;
+  }
+
+  private getOptionObj(
+    productOption: WithRelations<ProductOption, 'productOptionDetails'>,
+  ) {
+    const detailObj = productOption.productOptionDetails.reduce(
+      (obj, detail) => {
+        if (
+          ['cpu', 'gpu', 'ram', 'storage', 'processor'].includes(detail.type)
+        ) {
+          obj[detail.type] = detail.value;
+        }
+        return obj;
+      },
+      {} as Pick<
+        MacOptionResposne,
+        'cpu' | 'gpu' | 'ram' | 'storage' | 'processor'
+      >,
+    );
+    return {
+      id: productOption.id,
+      additionalPrice: productOption.additionalPrice,
+      ...detailObj,
+      optionSpecs: map(productOption.productOptionDetails, (detail) => ({
+        type: detail.type,
+        value: detail.value,
+      })),
+    };
   }
 }
 
@@ -184,6 +213,10 @@ export class IPadProductResponse extends BaseProductResponse {
 
   @Column()
   options: IPadOptionResposne[];
+
+  @Column()
+  myOption: IPadOptionResposne | null;
+
   constructor(
     product: WithRelations<
       Product,
@@ -194,10 +227,14 @@ export class IPadProductResponse extends BaseProductResponse {
       | 'productPhotos'
     >,
     productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
-    userProduct?: UserProduct,
-    wish?: Wish,
+    select?: {
+      myOption?: WithRelations<ProductOption, 'productOptionDetails'>;
+      reviews?: Review[];
+      userProduct?: UserProduct;
+      wish?: Wish;
+    },
   ) {
-    super(product, userProduct, wish);
+    super(product, select);
     product.productSpecs.forEach(({ type, value }) => {
       if (
         [
@@ -212,22 +249,33 @@ export class IPadProductResponse extends BaseProductResponse {
         this[type] = value;
       }
     });
-    this.options = map(productOptions, (option) => {
-      const detailObj = option.productOptionDetails.reduce(
-        (obj, detail) => {
-          if (['storage'].includes(detail.type)) {
-            obj[detail.type] = detail.value;
-          }
-          return obj;
-        },
-        {} as Pick<IPadOptionResposne, 'storage'>,
-      );
-      return {
-        id: option.id,
-        additionalPrice: option.additionalPrice,
-        ...detailObj,
-      };
-    });
+    this.options = map(productOptions, (option) => this.getOptionObj(option));
+    this.myOption = select?.myOption
+      ? this.getOptionObj(select.myOption)
+      : null;
+  }
+
+  private getOptionObj(
+    option: WithRelations<ProductOption, 'productOptionDetails'>,
+  ) {
+    const detailObj = option.productOptionDetails.reduce(
+      (obj, detail) => {
+        if (['storage'].includes(detail.type)) {
+          obj[detail.type] = detail.value;
+        }
+        return obj;
+      },
+      {} as Pick<IPadOptionResposne, 'storage'>,
+    );
+    return {
+      id: option.id,
+      additionalPrice: option.additionalPrice,
+      optionSpecs: map(option.productOptionDetails, (detail) => ({
+        type: detail.type,
+        value: detail.value,
+      })),
+      ...detailObj,
+    };
   }
 }
 
@@ -249,6 +297,10 @@ export class IPhoneProductResponse extends BaseProductResponse {
 
   @Column()
   options: IPadOptionResposne[];
+
+  @Column()
+  myOption: IPhoneOptionResposne | null;
+
   constructor(
     product: WithRelations<
       Product,
@@ -259,10 +311,14 @@ export class IPhoneProductResponse extends BaseProductResponse {
       | 'productPhotos'
     >,
     productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
-    userProduct?: UserProduct,
-    wish?: Wish,
+    select?: {
+      myOption?: WithRelations<ProductOption, 'productOptionDetails'>;
+      reviews?: Review[];
+      userProduct?: UserProduct;
+      wish?: Wish;
+    },
   ) {
-    super(product, userProduct, wish);
+    super(product, select);
     product.productSpecs.forEach(({ type, value }) => {
       if (
         [
@@ -276,22 +332,33 @@ export class IPhoneProductResponse extends BaseProductResponse {
         this[type] = value;
       }
     });
-    this.options = map(productOptions, (option) => {
-      const detailObj = option.productOptionDetails.reduce(
-        (obj, detail) => {
-          if (['storage'].includes(detail.type)) {
-            obj[detail.type] = detail.value;
-          }
-          return obj;
-        },
-        {} as Pick<IPhoneOptionResposne, 'storage'>,
-      );
-      return {
-        id: option.id,
-        additionalPrice: option.additionalPrice,
-        ...detailObj,
-      };
-    });
+    this.options = map(productOptions, (option) => this.getOptionObj(option));
+    this.myOption = select?.myOption
+      ? this.getOptionObj(select.myOption)
+      : null;
+  }
+
+  private getOptionObj(
+    option: WithRelations<ProductOption, 'productOptionDetails'>,
+  ) {
+    const detailObj = option.productOptionDetails.reduce(
+      (obj, detail) => {
+        if (['storage'].includes(detail.type)) {
+          obj[detail.type] = detail.value;
+        }
+        return obj;
+      },
+      {} as Pick<IPhoneOptionResposne, 'storage'>,
+    );
+    return {
+      id: option.id,
+      additionalPrice: option.additionalPrice,
+      optionSpecs: map(option.productOptionDetails, (detail) => ({
+        type: detail.type,
+        value: detail.value,
+      })),
+      ...detailObj,
+    };
   }
 }
 
@@ -306,39 +373,28 @@ export class GetOneProductResponse {
       | 'productPhotos'
       | 'reviews'
     >,
-    productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
-    userProduct?: UserProduct,
-    wish?: Wish,
+    productOptions: WithRelations<ProductOption, 'productOptionDetails'>[] = [],
+    select?: {
+      myOption?: WithRelations<ProductOption, 'productOptionDetails'>;
+      reviews?: Review[];
+      userProduct?: UserProduct;
+      wish?: Wish;
+    },
   ) {
     switch (product.productCategory.name) {
       case ProductCategoryEnum.MAC:
-        return new MacProductResponse(
-          product,
-          productOptions,
-          userProduct,
-          wish,
-        );
+        return new MacProductResponse(product, productOptions, select);
       case ProductCategoryEnum.IPAD:
-        return new IPadProductResponse(
-          product,
-          productOptions,
-          userProduct,
-          wish,
-        );
+        return new IPadProductResponse(product, productOptions, select);
       case ProductCategoryEnum.IPHONE:
-        return new IPhoneProductResponse(
-          product,
-          productOptions,
-          userProduct,
-          wish,
-        );
+        return new IPhoneProductResponse(product, productOptions, select);
       default:
-        return new BaseProductResponse(product, userProduct, wish);
+        return new BaseProductResponse(product, select);
     }
   }
 }
 
-export class MacOptionResposne {
+export interface MacOptionResposne {
   id: number;
   additionalPrice: number;
   cpu: string;
@@ -346,18 +402,21 @@ export class MacOptionResposne {
   ram: string;
   storage: string;
   processor: string;
+  optionSpecs: { type: string; value: string }[];
 }
 
-export class IPadOptionResposne {
+export interface IPadOptionResposne {
   id: number;
   additionalPrice: number;
   storage: string;
+  optionSpecs: { type: string; value: string }[];
 }
 
-export class IPhoneOptionResposne {
+export interface IPhoneOptionResposne {
   id: number;
   additionalPrice: number;
   storage: string;
+  optionSpecs: { type: string; value: string }[];
 }
 
 export class ReviewResponse {
