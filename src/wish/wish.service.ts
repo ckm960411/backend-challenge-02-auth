@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Wish } from 'src/entities/wish.entity';
 import { Repository } from 'typeorm';
 import { Product } from 'src/entities/product.entity';
+import { map } from 'lodash';
+import { GetWithResponse } from './dto/response/get-with.response';
 
 @Injectable()
 export class WishService {
@@ -49,10 +51,19 @@ export class WishService {
     const wishes = await this.wishRepository.find({
       where: { user: { id: userId } },
       relations: {
-        product: true,
+        product: {
+          productCategory: true,
+          productTags: true,
+          productSpecs: true,
+          productPhotos: true,
+          productColors: true,
+          productOptions: {
+            productOptionDetails: true,
+          },
+        },
       },
     });
-    return wishes;
+    return map(wishes, (wish) => new GetWithResponse(wish));
   }
 
   async deleteWish(id: number, userId: number) {

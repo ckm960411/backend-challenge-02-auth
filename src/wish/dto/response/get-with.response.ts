@@ -24,6 +24,9 @@ export class GetWithResponse {
     this.createdAt = wish.createdAt;
     this.memo = wish.memo;
     this.productId = wish.productId;
-    this.product = GetOneProductResponse.of(wish.product);
+    this.product = GetOneProductResponse.of(
+      wish.product,
+      wish.product.productOptions,
+    );
   }
 }
