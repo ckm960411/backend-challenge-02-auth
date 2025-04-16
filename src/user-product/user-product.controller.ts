@@ -67,7 +67,12 @@ export class UserProductController {
   async deleteUserProduct(
     @User('id') userId: number,
     @Param('id') userProductId: number,
+    @Body() dto: { force?: boolean },
   ) {
-    return this.userProductService.deleteUserProduct(userId, userProductId);
+    return this.userProductService.deleteUserProduct(
+      userId,
+      userProductId,
+      dto.force,
+    );
   }
 }

@@ -3,9 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { UserProduct } from 'src/entities/user-product.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateUserProductReqDto } from './dto/request/create-user-product.req.dto';
 import { UpdateUserProductReqDto } from './dto/request/update-user-product.req.dto';
 import { map } from 'lodash';
@@ -19,6 +19,8 @@ export class UserProductService {
     private userProductRepository: Repository<UserProduct>,
     @InjectRepository(Review)
     private reviewRepository: Repository<Review>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
   async findAllUserProducts(userId: number) {
@@ -125,17 +127,41 @@ export class UserProductService {
     });
   }
 
-  async deleteUserProduct(userId: number, userProductId: number) {
-    const userProduct = await this.userProductRepository.findOne({
-      where: { userId, id: userProductId },
+  async deleteUserProduct(
+    userId: number,
+    userProductId: number,
+    force?: boolean,
+  ) {
+    return this.dataSource.transaction(async (manager) => {
+      const userProduct = await manager.findOne(UserProduct, {
+        where: {
+          userId,
+          id: userProductId,
+        },
+      });
+
+      if (!userProduct) {
+        throw new NotFoundException('일치하는 상품이 없습니다.');
+      }
+
+      const reviews = await manager.find(Review, {
+        where: {
+          userProductId: userProduct.id,
+        },
+      });
+
+      if (reviews.length === 0) {
+        return await manager.delete(UserProduct, userProductId);
+      }
+
+      if (!force) {
+        throw new BadRequestException('리뷰가 존재하는 상품입니다.');
+      }
+
+      await manager.delete(Review, {
+        userProductId: userProduct.id,
+      });
+      await manager.delete(UserProduct, userProductId);
     });
-
-    if (!userProduct) {
-      throw new NotFoundException('일치하는 상품이 없습니다.');
-    }
-
-    await this.userProductRepository.delete(userProductId);
-
-    return userProductId;
   }
 }
