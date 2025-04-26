@@ -11,6 +11,7 @@ import { WishModule } from './wish/wish.module';
 import { ReviewModule } from './review/review.module';
 import { AwsModule } from './aws/aws.module';
 import { UserProductModule } from './user-product/user-product.module';
+import { ProductRecommendationModule } from './product-recommendation/product-recommendation.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { UserProductModule } from './user-product/user-product.module';
     ReviewModule,
     AwsModule,
     UserProductModule,
+    ProductRecommendationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

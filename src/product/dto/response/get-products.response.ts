@@ -68,6 +68,7 @@ export class GetProductsResponse {
     this.id = product.id;
     this.name = product.name;
     this.category = product.productCategory.name;
+    this.photos = map(product.productPhotos, (photo) => photo.url);
     this.generation = product.generation;
     this.releasedDate = product.releasedDate;
     this.price = product.price;
