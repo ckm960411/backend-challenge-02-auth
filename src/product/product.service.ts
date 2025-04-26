@@ -2,7 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { ProductCategoryEnum } from 'src/entities/enum/product-category.enum';
 import { Product } from 'src/entities/product.entity';
-import { DataSource, Repository } from 'typeorm';
+import {
+  DataSource,
+  Like,
+  Repository,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from 'typeorm';
 import { GetProductsResponse } from './dto/response/get-products.response';
 import { WithRelations } from 'src/utils/types/utility/WithRelations.utility';
 import { ProductOption } from 'src/entities/product-option.entity';
@@ -34,7 +41,10 @@ export class ProductService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async getProducts({ category, tag }: GetProductsRequest, userId?: number) {
+  async getProducts(
+    { category, tag, name, minPrice, maxPrice }: GetProductsRequest,
+    userId?: number,
+  ) {
     const products: WithRelations<
       Product,
       | 'productCategory'
@@ -46,6 +56,19 @@ export class ProductService {
       where: {
         productCategory: { name: category },
         productTags: tag ? { name: tag } : undefined,
+        name: name ? Like(`%${name}%`) : undefined,
+        price: (() => {
+          if (minPrice && maxPrice) {
+            return Between(minPrice, maxPrice);
+          }
+          if (minPrice) {
+            return MoreThanOrEqual(minPrice);
+          }
+          if (maxPrice) {
+            return LessThanOrEqual(maxPrice);
+          }
+          return undefined;
+        })(),
       },
       relations: {
         productCategory: true,

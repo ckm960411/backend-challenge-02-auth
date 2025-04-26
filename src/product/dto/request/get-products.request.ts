@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { values } from 'lodash';
 import { ProductCategoryEnum } from 'src/entities/enum/product-category.enum';
 
@@ -24,4 +25,33 @@ export class GetProductsRequest {
   @IsString()
   @IsOptional()
   tag?: string;
+
+  @ApiProperty({
+    description: '상품명',
+    example: 'M1',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @ApiProperty({
+    description: '상품 최소 가격',
+    example: 100_000,
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  minPrice?: number;
+
+  @ApiProperty({
+    description: '상품 최대 가격',
+    example: 100_000,
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  maxPrice?: number;
 }
