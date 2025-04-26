@@ -1,3 +1,4 @@
+import { orderBy } from 'lodash';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { ProductCategoryEnum } from 'src/entities/enum/product-category.enum';
@@ -42,7 +43,15 @@ export class ProductService {
   ) {}
 
   async getProducts(
-    { category, tag, name, minPrice, maxPrice }: GetProductsRequest,
+    {
+      category,
+      tag,
+      name,
+      minPrice,
+      maxPrice,
+      sortBy = 'releasedDate',
+      order = 'desc',
+    }: GetProductsRequest,
     userId?: number,
   ) {
     const products: WithRelations<
@@ -52,6 +61,7 @@ export class ProductService {
       | 'productTags'
       | 'productSpecs'
       | 'productPhotos'
+      | 'reviews'
     >[] = await this.productRepository.find({
       where: {
         productCategory: { name: category },
@@ -76,6 +86,7 @@ export class ProductService {
         productTags: true,
         productSpecs: true,
         productPhotos: true,
+        reviews: sortBy === 'reviewCount',
       },
     });
 
@@ -93,7 +104,7 @@ export class ProductService {
         })
       : [];
 
-    return products.map((product) =>
+    return map(orderBy(products, sortBy, order), (product) =>
       GetProductsResponse.of(product, userProducts, wishes),
     );
   }

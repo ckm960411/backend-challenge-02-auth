@@ -54,4 +54,32 @@ export class GetProductsRequest {
   @IsOptional()
   @Type(() => Number)
   maxPrice?: number;
+
+  @ApiProperty({
+    description: '정렬 기준',
+    example: 'releasedDate',
+    required: false,
+    enum: ['releasedDate', 'price', 'reviewCount'],
+    default: 'releasedDate',
+  })
+  @IsString()
+  @IsOptional()
+  @IsEnum(['releasedDate', 'price', 'reviewCount'], {
+    message: '정렬 기준은 releasedDate, price, reviewCount 중 하나여야 합니다.',
+  })
+  sortBy?: 'releasedDate' | 'price' | 'reviewCount';
+
+  @ApiProperty({
+    description: '정렬 방향',
+    example: 'desc',
+    required: false,
+    enum: ['asc', 'desc'],
+    default: 'desc',
+  })
+  @IsString()
+  @IsOptional()
+  @IsEnum(['asc', 'desc'], {
+    message: '정렬 방향은 asc 또는 desc여야 합니다.',
+  })
+  order?: 'asc' | 'desc';
 }
