@@ -55,7 +55,8 @@ export class User extends BaseEntity {
   @OneToMany(
     () => ProductRecommendation,
     (productRecommendation) => productRecommendation.user,
+    { lazy: true },
   )
   @JoinColumn()
-  productRecommendations: ProductRecommendation[];
+  productRecommendations: Promise<ProductRecommendation[]>;
 }

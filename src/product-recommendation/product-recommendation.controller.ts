@@ -1,10 +1,20 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ProductRecommendationService } from './product-recommendation.service';
 import { CreateProductRecommendationReqDto } from './dto/request/create-product-recommendation.request';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt-auth.guard';
 import { User } from 'src/auth/decorators/user.decorator';
+import { FindAllProductRecommendationReqQuery } from './dto/request/find-all-product-recommendation.req.query';
+import { ProductRecommendation } from 'src/entities/product-recommendation.entity';
 
 @Controller('product-recommendation')
 export class ProductRecommendationController {
@@ -32,6 +42,48 @@ export class ProductRecommendationController {
   ): Promise<number> {
     return this.productRecommendationService.createProductRecommendation(
       dto,
+      userId,
+    );
+  }
+
+  @ApiOperation({ summary: '유저 상품 추천 목록 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '유저 상품 추천 목록 조회 성공',
+    type: ProductRecommendation,
+    isArray: true,
+  })
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async findAll(
+    @Query() query: FindAllProductRecommendationReqQuery,
+    @User('id') userId: number,
+  ) {
+    return this.productRecommendationService.findAllProductRecommendations(
+      query,
+      userId,
+    );
+  }
+
+  @ApiOperation({ summary: '상품 추천 단건 조회' })
+  @ApiParam({
+    name: 'productRecommendationId',
+    description: '상품 추천 ID',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '상품 추천 단건 조회 성공',
+    type: ProductRecommendation,
+  })
+  @Get(':productRecommendationId')
+  @UseGuards(JwtAuthGuard)
+  async findOne(
+    @Param('productRecommendationId') productRecommendationId: number,
+    @User('id') userId: number,
+  ) {
+    return this.productRecommendationService.findOneProductRecommendation(
+      productRecommendationId,
       userId,
     );
   }

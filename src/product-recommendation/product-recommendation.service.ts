@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductRecommendationReqDto } from './dto/request/create-product-recommendation.request';
 import { ProductRecommendation } from 'src/entities/product-recommendation.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FindAllProductRecommendationReqQuery } from './dto/request/find-all-product-recommendation.req.query';
+import { isNil } from 'lodash';
 
 @Injectable()
 export class ProductRecommendationService {
@@ -24,5 +26,49 @@ export class ProductRecommendationService {
     );
 
     return created.id;
+  }
+
+  async findAllProductRecommendations(
+    query: FindAllProductRecommendationReqQuery,
+    userId: number,
+  ) {
+    const productRecommendations =
+      await this.productRecommendationRepository.find({
+        where: {
+          userId,
+          ...(!isNil(query.isCompleted) && {
+            isCompleted: query.isCompleted === 't',
+          }),
+        },
+        relations: {
+          specs: true,
+          products: true,
+        },
+      });
+
+    return productRecommendations;
+  }
+
+  async findOneProductRecommendation(
+    productRecommendationId: number,
+    userId: number,
+  ) {
+    const productRecommendation =
+      await this.productRecommendationRepository.findOne({
+        where: {
+          id: productRecommendationId,
+          userId,
+        },
+        relations: {
+          specs: true,
+          products: true,
+        },
+      });
+
+    if (isNil(productRecommendation)) {
+      throw new NotFoundException('상품 추천을 찾을 수 없습니다.');
+    }
+
+    return productRecommendation;
   }
 }

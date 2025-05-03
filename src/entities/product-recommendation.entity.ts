@@ -23,6 +23,7 @@ export class ProductRecommendation extends BaseEntity {
     example: 'false',
     default: false,
   })
+  @Column()
   isCompleted: boolean;
 
   @ApiProperty({
@@ -89,8 +90,8 @@ export class ProductRecommendation extends BaseEntity {
     description: '유저',
     example: 1,
   })
-  @ManyToOne(() => User, (user) => user.productRecommendations)
-  user: User;
+  @ManyToOne(() => User, (user) => user.productRecommendations, { lazy: true })
+  user: Promise<User>;
 
   @ApiProperty({
     description: '상품 목록',
