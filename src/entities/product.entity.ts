@@ -18,6 +18,7 @@ import { ProductTag } from './product-tag.entity';
 import { Wish } from './wish.entity';
 import { Review } from './review.entity';
 import { UserProduct } from './user-product.entity';
+import { ProductRecommendation } from './product-recommendation.entity';
 
 @Entity()
 export class Product extends BaseEntity {
@@ -160,4 +161,14 @@ export class Product extends BaseEntity {
   @OneToMany(() => UserProduct, (userProduct) => userProduct.product)
   @JoinColumn()
   userProducts?: UserProduct[];
+
+  @ApiProperty({
+    description: '추천상품 목록',
+  })
+  @OneToMany(
+    () => ProductRecommendation,
+    (productRecommendation) => productRecommendation.products,
+  )
+  @JoinColumn()
+  productRecommendations: ProductRecommendation[];
 }

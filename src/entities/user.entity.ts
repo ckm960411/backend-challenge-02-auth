@@ -5,6 +5,7 @@ import { Wish } from './wish.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { Review } from './review.entity';
 import { UserProduct } from './user-product.entity';
+import { ProductRecommendation } from './product-recommendation.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -47,4 +48,14 @@ export class User extends BaseEntity {
   @OneToMany(() => UserProduct, (userProduct) => userProduct.user)
   @JoinColumn()
   userProducts: UserProduct[];
+
+  @ApiProperty({
+    description: '추천상품 목록',
+  })
+  @OneToMany(
+    () => ProductRecommendation,
+    (productRecommendation) => productRecommendation.user,
+  )
+  @JoinColumn()
+  productRecommendations: ProductRecommendation[];
 }
