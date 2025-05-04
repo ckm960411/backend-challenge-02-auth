@@ -4,10 +4,11 @@ import { ProductRecommendationService } from './service/product-recommendation.s
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductRecommendation } from 'src/entities/product-recommendation.entity';
 import { ProductCategory } from 'src/entities/product-category.entity';
+import { UpdateProductRecommendationService } from './service/update-product-recommendation.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ProductRecommendation, ProductCategory])],
   controllers: [ProductRecommendationController],
-  providers: [ProductRecommendationService],
+  providers: [ProductRecommendationService, UpdateProductRecommendationService],
 })
 export class ProductRecommendationModule {}

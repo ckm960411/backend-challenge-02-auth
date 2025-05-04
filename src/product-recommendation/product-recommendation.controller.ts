@@ -16,11 +16,13 @@ import { JwtAuthGuard } from 'src/auth/strategies/jwt-auth.guard';
 import { User } from 'src/auth/decorators/user.decorator';
 import { FindAllProductRecommendationReqQuery } from './dto/request/find-all-product-recommendation.req.query';
 import { ProductRecommendation } from 'src/entities/product-recommendation.entity';
+import { UpdateProductRecommendationService } from './service/update-product-recommendation.service';
 
 @Controller('product-recommendation')
 export class ProductRecommendationController {
   constructor(
     private readonly productRecommendationService: ProductRecommendationService,
+    private readonly updateProductRecommendationService: UpdateProductRecommendationService,
   ) {}
 
   @ApiOperation({
