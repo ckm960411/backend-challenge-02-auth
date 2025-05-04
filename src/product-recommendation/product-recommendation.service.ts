@@ -25,7 +25,9 @@ export class ProductRecommendationService {
       productRecommendation,
     );
 
-    return created.id;
+    return {
+      productRecommendationId: created.id,
+    };
   }
 
   async findAllProductRecommendations(

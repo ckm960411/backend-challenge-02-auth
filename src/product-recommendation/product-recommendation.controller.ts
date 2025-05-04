@@ -39,7 +39,7 @@ export class ProductRecommendationController {
   async createProductRecommendation(
     @Body() dto: CreateProductRecommendationReqDto,
     @User('id') userId: number,
-  ): Promise<number> {
+  ): Promise<{ productRecommendationId: number }> {
     return this.productRecommendationService.createProductRecommendation(
       dto,
       userId,
