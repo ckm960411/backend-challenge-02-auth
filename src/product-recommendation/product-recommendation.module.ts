@@ -3,9 +3,10 @@ import { ProductRecommendationController } from './product-recommendation.contro
 import { ProductRecommendationService } from './product-recommendation.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductRecommendation } from 'src/entities/product-recommendation.entity';
+import { ProductCategory } from 'src/entities/product-category.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductRecommendation])],
+  imports: [TypeOrmModule.forFeature([ProductRecommendation, ProductCategory])],
   controllers: [ProductRecommendationController],
   providers: [ProductRecommendationService],
 })

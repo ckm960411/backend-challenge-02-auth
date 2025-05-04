@@ -23,27 +23,33 @@ export class ProductRecommendationController {
     private readonly productRecommendationService: ProductRecommendationService,
   ) {}
 
-  @ApiOperation({ summary: '상품 추천 생성' })
+  @ApiOperation({
+    summary: '상품 추천 생성',
+    description:
+      '상품에 대한 추천을 시작할 때 호출합니다. 새로운 상품 추천을 하나 생성합니다.',
+  })
   @ApiBody({
     type: CreateProductRecommendationReqDto,
-    description:
-      '상품에 대한 추천을 시작할 때 호출합니다. 새로운 상품 추천을 하나 생성합니다. body는 CreateProductRecommendationReqDto를 참고해주세요.',
   })
   @ApiResponse({
     status: 201,
     description:
-      '상품 추천 생성 성공시 생성된 ProductRecommendation ID를 반환합니다. 이후 상품추천의 내용을 하나씩 수정할 때 보내는 ID로 활용합니다.',
-    example: 1,
+      '상품 추천 생성 성공시 생성된 ProductRecommendation ID와 그 다음 스텝을 반환합니다. 이후 상품추천의 내용을 하나씩 수정할 때 보내는 ID로 활용합니다.',
+    example: {
+      productRecommendationId: 1,
+      nextStep: 'STEP_1',
+      productCategories: ['Mac', 'iPad', 'iPhone', 'Watch', 'AirPods'],
+    },
   })
   @Post()
   @UseGuards(JwtAuthGuard)
   async createProductRecommendation(
-    @Body() dto: CreateProductRecommendationReqDto,
     @User('id') userId: number,
+    @Body() dto: CreateProductRecommendationReqDto,
   ): Promise<{ productRecommendationId: number }> {
     return this.productRecommendationService.createProductRecommendation(
-      dto,
       userId,
+      dto,
     );
   }
 

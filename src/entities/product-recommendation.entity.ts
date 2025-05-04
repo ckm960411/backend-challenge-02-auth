@@ -14,9 +14,9 @@ export class ProductRecommendation extends BaseEntity {
     description: '상품 카테고리',
     example: 'Mac',
   })
-  @Column()
+  @Column({ nullable: true })
   @IsEnum(ProductCategoryEnum)
-  category: ProductCategoryEnum;
+  category: ProductCategoryEnum | null;
 
   @ApiProperty({
     description: '추천상품 입력완료 여부',
