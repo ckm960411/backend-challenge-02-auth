@@ -61,6 +61,7 @@ export class ProductRecommendationService {
           }),
         },
         relations: {
+          tags: true,
           specs: true,
           products: true,
         },
@@ -80,6 +81,7 @@ export class ProductRecommendationService {
           userId,
         },
         relations: {
+          tags: true,
           specs: true,
           products: true,
         },

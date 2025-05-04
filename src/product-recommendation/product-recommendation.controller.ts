@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -17,6 +18,7 @@ import { User } from 'src/auth/decorators/user.decorator';
 import { FindAllProductRecommendationReqQuery } from './dto/request/find-all-product-recommendation.req.query';
 import { ProductRecommendation } from 'src/entities/product-recommendation.entity';
 import { UpdateProductRecommendationService } from './service/update-product-recommendation.service';
+import { UpdateProductRecommendationReqDto } from './dto/request/update-product-recommendation.req.dto';
 
 @Controller('product-recommendation')
 export class ProductRecommendationController {
@@ -94,6 +96,26 @@ export class ProductRecommendationController {
     return this.productRecommendationService.findOneProductRecommendation(
       productRecommendationId,
       userId,
+    );
+  }
+
+  @ApiOperation({ summary: '상품 추천 수정' })
+  @ApiParam({
+    name: 'productRecommendationId',
+    description: '상품 추천 ID',
+    example: 1,
+  })
+  @Patch(':productRecommendationId')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Param('productRecommendationId') productRecommendationId: number,
+    @User('id') userId: number,
+    @Body() dto: UpdateProductRecommendationReqDto,
+  ) {
+    return this.updateProductRecommendationService.updateProductRecommendation(
+      userId,
+      productRecommendationId,
+      dto,
     );
   }
 
