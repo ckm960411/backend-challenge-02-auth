@@ -6,9 +6,9 @@ import {
 import { ProductRecommendation } from 'src/entities/product-recommendation.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindAllProductRecommendationReqQuery } from './dto/request/find-all-product-recommendation.req.query';
+import { FindAllProductRecommendationReqQuery } from '../dto/request/find-all-product-recommendation.req.query';
 import { isNil, map } from 'lodash';
-import { CreateProductRecommendationReqDto } from './dto/request/create-product-recommendation.request';
+import { CreateProductRecommendationReqDto } from '../dto/request/create-product-recommendation.request';
 import { ProductCategory } from 'src/entities/product-category.entity';
 
 @Injectable()

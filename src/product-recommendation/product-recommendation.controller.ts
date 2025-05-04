@@ -8,7 +8,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ProductRecommendationService } from './product-recommendation.service';
+import { ProductRecommendationService } from './service/product-recommendation.service';
 import { CreateProductRecommendationReqDto } from './dto/request/create-product-recommendation.request';
 import { ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { ApiResponse } from '@nestjs/swagger';
