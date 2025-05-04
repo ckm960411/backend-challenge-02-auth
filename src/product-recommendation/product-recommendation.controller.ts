@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -83,6 +84,28 @@ export class ProductRecommendationController {
     @User('id') userId: number,
   ) {
     return this.productRecommendationService.findOneProductRecommendation(
+      productRecommendationId,
+      userId,
+    );
+  }
+
+  @ApiOperation({ summary: '상품 추천 삭제' })
+  @ApiParam({
+    name: 'productRecommendationId',
+    description: '상품 추천 ID',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '상품 추천 삭제 성공',
+  })
+  @Delete(':productRecommendationId')
+  @UseGuards(JwtAuthGuard)
+  async delete(
+    @Param('productRecommendationId') productRecommendationId: number,
+    @User('id') userId: number,
+  ) {
+    return this.productRecommendationService.deleteProductRecommendation(
       productRecommendationId,
       userId,
     );

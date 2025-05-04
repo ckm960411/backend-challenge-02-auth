@@ -73,4 +73,24 @@ export class ProductRecommendationService {
 
     return productRecommendation;
   }
+
+  async deleteProductRecommendation(
+    productRecommendationId: number,
+    userId: number,
+  ) {
+    const productRecommendation =
+      await this.productRecommendationRepository.findOne({
+        where: {
+          id: productRecommendationId,
+          userId,
+        },
+      });
+
+    if (!productRecommendation) {
+      throw new NotFoundException('상품 추천을 찾을 수 없습니다.');
+    }
+
+    await this.productRecommendationRepository.delete(productRecommendationId);
+    return productRecommendation.id;
+  }
 }
