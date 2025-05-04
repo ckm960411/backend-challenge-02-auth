@@ -35,7 +35,6 @@ export class ProductRecommendation extends BaseEntity {
     (productRecommendationTag) =>
       productRecommendationTag.productRecommendation,
   )
-  @JoinColumn()
   tags: ProductRecommendationTag[];
 
   @ApiProperty({

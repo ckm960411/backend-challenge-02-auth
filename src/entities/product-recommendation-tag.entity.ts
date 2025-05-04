@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProductRecommendation } from './product-recommendation.entity';
@@ -18,5 +18,6 @@ export class ProductRecommendationTag extends BaseEntity {
     () => ProductRecommendation,
     (productRecommendation) => productRecommendation.tags,
   )
+  @JoinColumn()
   productRecommendation: ProductRecommendation;
 }
