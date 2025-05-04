@@ -105,6 +105,14 @@ export class ProductRecommendationController {
     description: '상품 추천 ID',
     example: 1,
   })
+  @ApiBody({
+    type: UpdateProductRecommendationReqDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      '성공시 다음 스텝을 안내하고, 유저에게 줄 수 있는 선택지를 안내합니다. 가령 minPrice가 100만원이고 maxPrice가 150만원이라면 현재 유저에게 선택해줄 수 있는 품목들의 실제 최소, 최대가격이 그러함을 응답으로 반환합니다.',
+  })
   @Patch(':productRecommendationId')
   @UseGuards(JwtAuthGuard)
   async update(
