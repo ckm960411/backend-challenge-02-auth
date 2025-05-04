@@ -1,4 +1,3 @@
-import fp from 'lodash/fp';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductRecommendation } from 'src/entities/product-recommendation.entity';
@@ -52,7 +51,7 @@ export class UpdateProductRecommendationService {
           minReleasedDate: dto.minReleasedDate,
         });
       case 'STEP_5':
-        return this.stepFive(productRecommendationId, {
+        return this.stepFive(userId, productRecommendationId, {
           specs: dto.specs,
         });
       default:
@@ -107,6 +106,8 @@ export class UpdateProductRecommendationService {
       tags?: string[];
     },
   ) {
+    await this.checkCategory(productRecommendationId, userId);
+
     const productRecommendation =
       await this.productRecommendationService.findOneProductRecommendation(
         productRecommendationId,
@@ -179,6 +180,7 @@ export class UpdateProductRecommendationService {
       maxPrice?: number;
     },
   ) {
+    await this.checkCategory(productRecommendationId, userId);
     const productRecommendation =
       await this.productRecommendationService.findOneProductRecommendation(
         productRecommendationId,
@@ -237,6 +239,7 @@ export class UpdateProductRecommendationService {
       minReleasedDate?: string;
     },
   ) {
+    await this.checkCategory(productRecommendationId, userId);
     const productRecommendation =
       await this.productRecommendationService.findOneProductRecommendation(
         productRecommendationId,
@@ -313,6 +316,7 @@ export class UpdateProductRecommendationService {
   }
 
   private async stepFive(
+    userId: number,
     productRecommendationId: number,
     {
       specs,
@@ -320,6 +324,7 @@ export class UpdateProductRecommendationService {
       specs?: { type: string; value: string }[];
     },
   ) {
+    await this.checkCategory(productRecommendationId, userId);
     // 5-1) 기존 스펙 삭제
     await this.productRecommendationSpecRepository.delete({
       productRecommendation: {
@@ -342,5 +347,17 @@ export class UpdateProductRecommendationService {
       productRecommendationId,
       nextStep: null,
     };
+  }
+
+  private async checkCategory(productRecommendationId: number, userId: number) {
+    const productRecommendation =
+      await this.productRecommendationService.findOneProductRecommendation(
+        productRecommendationId,
+        userId,
+      );
+
+    if (isNil(productRecommendation.category)) {
+      throw new BadRequestException('카테고리가 선택되지 않았습니다.');
+    }
   }
 }
