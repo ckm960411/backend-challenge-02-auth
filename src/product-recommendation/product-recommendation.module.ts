@@ -8,6 +8,7 @@ import { UpdateProductRecommendationService } from './service/update-product-rec
 import { ProductRecommendationTag } from 'src/entities/product-recommendation-tag.entity';
 import { ProductTag } from 'src/entities/product-tag.entity';
 import { Product } from 'src/entities/product.entity';
+import { ProductRecommendationSpec } from 'src/entities/product-recommendation-spec.entity';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { Product } from 'src/entities/product.entity';
       ProductTag,
       ProductRecommendationTag,
       Product,
+      ProductRecommendationSpec,
     ]),
   ],
   controllers: [ProductRecommendationController],

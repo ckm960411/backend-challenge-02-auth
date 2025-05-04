@@ -10,6 +10,7 @@ import { UpdateProductRecommendationReqDto } from '../dto/request/update-product
 import { flatMap, isNil, map, uniqBy } from 'lodash';
 import { ProductRecommendationTag } from 'src/entities/product-recommendation-tag.entity';
 import { Product } from 'src/entities/product.entity';
+import { ProductRecommendationSpec } from 'src/entities/product-recommendation-spec.entity';
 
 @Injectable()
 export class UpdateProductRecommendationService {
@@ -23,6 +24,8 @@ export class UpdateProductRecommendationService {
     private readonly productRecommendationTagRepository: Repository<ProductRecommendationTag>,
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    @InjectRepository(ProductRecommendationSpec)
+    private readonly productRecommendationSpecRepository: Repository<ProductRecommendationSpec>,
   ) {}
 
   async updateProductRecommendation(
@@ -34,28 +37,23 @@ export class UpdateProductRecommendationService {
       case 'STEP_1':
         return this.stepOne(userId, productRecommendationId, {
           productCategory: dto.productCategory,
-          isCompleted: dto.isCompleted,
         });
       case 'STEP_2':
         return this.stepTwo(userId, productRecommendationId, {
           tags: dto.tags,
-          isCompleted: dto.isCompleted,
         });
       case 'STEP_3':
         return this.stepThree(userId, productRecommendationId, {
           minPrice: dto.minPrice,
           maxPrice: dto.maxPrice,
-          isCompleted: dto.isCompleted,
         });
       case 'STEP_4':
         return this.stepFour(userId, productRecommendationId, {
           minReleasedDate: dto.minReleasedDate,
-          isCompleted: dto.isCompleted,
         });
       case 'STEP_5':
-        return this.stepFive(userId, productRecommendationId, {
+        return this.stepFive(productRecommendationId, {
           specs: dto.specs,
-          isCompleted: dto.isCompleted,
         });
       default:
         throw new BadRequestException('Invalid step');
@@ -67,10 +65,8 @@ export class UpdateProductRecommendationService {
     productRecommendationId: number,
     {
       productCategory,
-      isCompleted,
     }: {
       productCategory: ProductCategoryEnum;
-      isCompleted?: boolean;
     },
   ) {
     const productRecommendation =
@@ -83,7 +79,6 @@ export class UpdateProductRecommendationService {
     await this.productRecommendationRepository.save({
       ...productRecommendation,
       category: productCategory,
-      isCompleted: isCompleted ?? undefined,
     });
 
     // 1-2) 최근 태그 10개 조회
@@ -108,10 +103,8 @@ export class UpdateProductRecommendationService {
     productRecommendationId: number,
     {
       tags,
-      isCompleted,
     }: {
       tags?: string[];
-      isCompleted?: boolean;
     },
   ) {
     const productRecommendation =
@@ -148,13 +141,7 @@ export class UpdateProductRecommendationService {
       }
     }
 
-    // 2-4) 완료 여부 저장
-    await this.productRecommendationRepository.update(
-      { id: productRecommendationId },
-      { isCompleted: isCompleted ?? undefined },
-    );
-
-    // 2-5) 카테고리가 일치하는 상품들의 가격 범위 찾기
+    // 2-4) 카테고리가 일치하는 상품들의 가격 범위 찾기
     const queryBuilder = this.productRepository
       .createQueryBuilder('product')
       .select('MIN(product.price)', 'minPrice')
@@ -164,7 +151,7 @@ export class UpdateProductRecommendationService {
         category: productRecommendation.category,
       });
 
-    // 2-6) 태그가 있는 경우 태그까지 포함하는 품목 반영
+    // 2-5) 태그가 있는 경우 태그까지 포함하는 품목 반영
     if (tags && tags.length > 0) {
       queryBuilder
         .innerJoin('product.productTags', 'productTag')
@@ -187,11 +174,9 @@ export class UpdateProductRecommendationService {
     {
       minPrice,
       maxPrice,
-      isCompleted,
     }: {
       minPrice?: number;
       maxPrice?: number;
-      isCompleted?: boolean;
     },
   ) {
     const productRecommendation =
@@ -203,7 +188,7 @@ export class UpdateProductRecommendationService {
     // 3-1) 최소 가격 저장
     await this.productRecommendationRepository.update(
       { id: productRecommendationId },
-      { minPrice, maxPrice, isCompleted },
+      { minPrice, maxPrice },
     );
 
     const queryBuilder = this.productRepository
@@ -248,10 +233,8 @@ export class UpdateProductRecommendationService {
     productRecommendationId: number,
     {
       minReleasedDate,
-      isCompleted,
     }: {
       minReleasedDate?: string;
-      isCompleted?: boolean;
     },
   ) {
     const productRecommendation =
@@ -263,7 +246,7 @@ export class UpdateProductRecommendationService {
     // 4-1) 완료 여부 저장
     await this.productRecommendationRepository.update(
       { id: productRecommendationId },
-      { minReleasedDate, isCompleted },
+      { minReleasedDate },
     );
 
     const queryBuilder = this.productRepository
@@ -330,14 +313,34 @@ export class UpdateProductRecommendationService {
   }
 
   private async stepFive(
-    userId: number,
     productRecommendationId: number,
     {
       specs,
-      isCompleted,
     }: {
       specs?: { type: string; value: string }[];
-      isCompleted?: boolean;
     },
-  ) {}
+  ) {
+    // 5-1) 기존 스펙 삭제
+    await this.productRecommendationSpecRepository.delete({
+      productRecommendation: {
+        id: productRecommendationId,
+      },
+    });
+
+    // 5-2) 새로운 스펙 저장
+    for (const spec of specs) {
+      await this.productRecommendationSpecRepository.save({
+        type: spec.type,
+        value: spec.value,
+        productRecommendation: {
+          id: productRecommendationId,
+        },
+      });
+    }
+
+    return {
+      productRecommendationId,
+      nextStep: null,
+    };
+  }
 }
