@@ -192,7 +192,55 @@ export class UpdateProductRecommendationService {
       maxPrice?: number;
       isCompleted?: boolean;
     },
-  ) {}
+  ) {
+    const productRecommendation =
+      await this.productRecommendationService.findOneProductRecommendation(
+        productRecommendationId,
+        userId,
+      );
+
+    // 3-1) 최소 가격 저장
+    await this.productRecommendationRepository.update(
+      { id: productRecommendationId },
+      { minPrice, maxPrice, isCompleted },
+    );
+
+    const queryBuilder = this.productRepository
+      .createQueryBuilder('product')
+      .select('product.releasedDate', 'minReleasedDate')
+      .innerJoin('product.productCategory', 'productCategory')
+      .where('productCategory.name = :category', {
+        category: productRecommendation.category,
+      });
+
+    // 3-2) 가격 범위가 있는 경우 가격 조건 추가
+    if (minPrice !== undefined) {
+      queryBuilder.andWhere('product.price >= :minPrice', { minPrice });
+    }
+    if (maxPrice !== undefined) {
+      queryBuilder.andWhere('product.price <= :maxPrice', { maxPrice });
+    }
+
+    // 3-3) 태그가 있는 경우 태그까지 포함하는 품목 반영
+    if (productRecommendation.tags.length > 0) {
+      queryBuilder
+        .innerJoin('product.productTags', 'productTag')
+        .andWhere('productTag.name IN (:...tags)', {
+          tags: map(productRecommendation.tags, 'name'),
+        });
+    }
+
+    // 3-4) 출시일이 가장 빠른 상품 찾기
+    queryBuilder.orderBy('product.releasedDate', 'ASC').limit(1);
+
+    const queryResult = await queryBuilder.getRawOne();
+
+    return {
+      productRecommendationId,
+      nextStep: 'STEP_4',
+      minReleasedDate: queryResult?.minReleasedDate ?? null,
+    };
+  }
 
   private async stepFour(
     userId: number,
