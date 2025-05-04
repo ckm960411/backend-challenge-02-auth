@@ -1,3 +1,4 @@
+import fp from 'lodash/fp';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductRecommendation } from 'src/entities/product-recommendation.entity';
@@ -6,7 +7,7 @@ import { Repository } from 'typeorm';
 import { ProductRecommendationService } from './product-recommendation.service';
 import { ProductTag } from 'src/entities/product-tag.entity';
 import { UpdateProductRecommendationReqDto } from '../dto/request/update-product-recommendation.req.dto';
-import { map } from 'lodash';
+import { flatMap, isNil, map, uniqBy } from 'lodash';
 import { ProductRecommendationTag } from 'src/entities/product-recommendation-tag.entity';
 import { Product } from 'src/entities/product.entity';
 
@@ -252,7 +253,81 @@ export class UpdateProductRecommendationService {
       minReleasedDate?: string;
       isCompleted?: boolean;
     },
-  ) {}
+  ) {
+    const productRecommendation =
+      await this.productRecommendationService.findOneProductRecommendation(
+        productRecommendationId,
+        userId,
+      );
+
+    // 4-1) 완료 여부 저장
+    await this.productRecommendationRepository.update(
+      { id: productRecommendationId },
+      { minReleasedDate, isCompleted },
+    );
+
+    const queryBuilder = this.productRepository
+      .createQueryBuilder('product')
+      .select([
+        'product.id',
+        'product.name',
+        'product.price',
+        'product.releasedDate',
+      ])
+      .leftJoinAndSelect('product.productSpecs', 'productSpec')
+      .innerJoin('product.productCategory', 'productCategory')
+      .where('productCategory.name = :category', {
+        category: productRecommendation.category,
+      });
+
+    // 4-2) 가격 범위가 있는 경우 가격 조건 추가
+    if (!isNil(productRecommendation.minPrice)) {
+      queryBuilder.andWhere('product.price >= :minPrice', {
+        minPrice: productRecommendation.minPrice,
+      });
+    }
+    if (!isNil(productRecommendation.maxPrice)) {
+      queryBuilder.andWhere('product.price <= :maxPrice', {
+        maxPrice: productRecommendation.maxPrice,
+      });
+    }
+
+    // 4-3) 태그가 있는 경우 태그까지 포함하는 품목 반영
+    if (productRecommendation.tags.length > 0) {
+      queryBuilder
+        .innerJoin('product.productTags', 'productTag')
+        .andWhere('productTag.name IN (:...tags)', {
+          tags: map(productRecommendation.tags, 'name'),
+        });
+    }
+
+    // 4-4) 출시일이 있는 경우 출시일 조건 추가
+    if (minReleasedDate !== undefined) {
+      queryBuilder.andWhere('product.releasedDate >= :minReleasedDate', {
+        minReleasedDate,
+      });
+    }
+
+    console.log('SQL Query:', queryBuilder.getQueryAndParameters());
+    const products = await queryBuilder.getMany();
+
+    // 4-5) 모든 상품의 스펙을 수집
+    const allSpecs = flatMap(products, 'productSpecs');
+    const mappedSpecs = map(allSpecs, (spec) => ({
+      type: spec.type,
+      value: spec.value,
+    }));
+    const uniqueSpecs = uniqBy(
+      mappedSpecs,
+      (spec) => `${spec.type}-${spec.value}`,
+    );
+
+    return {
+      productRecommendationId,
+      nextStep: 'STEP_5',
+      specs: uniqueSpecs,
+    };
+  }
 
   private async stepFive(
     userId: number,
