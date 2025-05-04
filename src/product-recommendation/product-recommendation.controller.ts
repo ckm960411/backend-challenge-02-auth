@@ -127,6 +127,24 @@ export class ProductRecommendationController {
     );
   }
 
+  @ApiOperation({ summary: '상품 추천 완료' })
+  @ApiParam({
+    name: 'productRecommendationId',
+    description: '상품 추천 ID',
+    example: 1,
+  })
+  @Post(':productRecommendationId/complete')
+  @UseGuards(JwtAuthGuard)
+  async complete(
+    @Param('productRecommendationId') productRecommendationId: number,
+    @User('id') userId: number,
+  ) {
+    return this.productRecommendationService.completeProductRecommendation(
+      userId,
+      productRecommendationId,
+    );
+  }
+
   @ApiOperation({ summary: '상품 추천 삭제' })
   @ApiParam({
     name: 'productRecommendationId',
