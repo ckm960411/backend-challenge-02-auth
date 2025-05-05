@@ -118,6 +118,16 @@ export class ProductRecommendationService {
       userId,
     );
 
+    if (productRecommendation.isCompleted) {
+      throw new BadRequestException('이미 완료된 상품 추천입니다.');
+    }
+
+    if (isNil(productRecommendation.category)) {
+      throw new BadRequestException(
+        '카테고리가 설정되지 않아 완료할 수 없습니다.',
+      );
+    }
+
     // 1) 추천 상품 찾기
     const queryBuilder = this.productRepository
       .createQueryBuilder('product')
