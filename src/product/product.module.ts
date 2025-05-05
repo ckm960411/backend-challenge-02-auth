@@ -35,5 +35,6 @@ import { Wish } from 'src/entities/wish.entity';
   ],
   controllers: [ProductController],
   providers: [ProductService, CreateProductService, ReviewService],
+  exports: [ProductService],
 })
 export class ProductModule {}

@@ -10,6 +10,7 @@ import { ProductTag } from 'src/entities/product-tag.entity';
 import { Product } from 'src/entities/product.entity';
 import { ProductRecommendationSpec } from 'src/entities/product-recommendation-spec.entity';
 import { ProductToProductRecommendation } from 'src/entities/product-to-product-recommendation.entity';
+import { ProductModule } from 'src/product/product.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ProductToProductRecommendation } from 'src/entities/product-to-product-
       ProductRecommendationSpec,
       ProductToProductRecommendation,
     ]),
+    ProductModule,
   ],
   controllers: [ProductRecommendationController],
   providers: [ProductRecommendationService, UpdateProductRecommendationService],

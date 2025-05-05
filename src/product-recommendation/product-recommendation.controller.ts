@@ -16,9 +16,9 @@ import { ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt-auth.guard';
 import { User } from 'src/auth/decorators/user.decorator';
 import { FindAllProductRecommendationReqQuery } from './dto/request/find-all-product-recommendation.req.query';
-import { ProductRecommendation } from 'src/entities/product-recommendation.entity';
 import { UpdateProductRecommendationService } from './service/update-product-recommendation.service';
 import { UpdateProductRecommendationReqDto } from './dto/request/update-product-recommendation.req.dto';
+import { GetProductRecommendationResDto } from './dto/response/get-product-recommendation.res.dto';
 
 @Controller('product-recommendation')
 export class ProductRecommendationController {
@@ -61,7 +61,7 @@ export class ProductRecommendationController {
   @ApiResponse({
     status: 200,
     description: '유저 상품 추천 목록 조회 성공',
-    type: ProductRecommendation,
+    type: GetProductRecommendationResDto,
     isArray: true,
   })
   @Get()
@@ -85,7 +85,7 @@ export class ProductRecommendationController {
   @ApiResponse({
     status: 200,
     description: '상품 추천 단건 조회 성공',
-    type: ProductRecommendation,
+    type: GetProductRecommendationResDto,
   })
   @Get(':productRecommendationId')
   @UseGuards(JwtAuthGuard)

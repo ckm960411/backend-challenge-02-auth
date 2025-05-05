@@ -12,6 +12,7 @@ import { CreateProductRecommendationReqDto } from '../dto/request/create-product
 import { ProductCategory } from 'src/entities/product-category.entity';
 import { Product } from 'src/entities/product.entity';
 import { ProductToProductRecommendation } from 'src/entities/product-to-product-recommendation.entity';
+import { GetProductRecommendationResDto } from '../dto/response/get-product-recommendation.res.dto';
 
 @Injectable()
 export class ProductRecommendationService {
@@ -69,11 +70,17 @@ export class ProductRecommendationService {
         relations: {
           tags: true,
           specs: true,
-          products: true,
+          products: {
+            product: true,
+          },
         },
       });
 
-    return productRecommendations;
+    return map(
+      productRecommendations,
+      (productRecommendation) =>
+        new GetProductRecommendationResDto(productRecommendation),
+    );
   }
 
   async findOneProductRecommendation(
@@ -89,7 +96,9 @@ export class ProductRecommendationService {
         relations: {
           tags: true,
           specs: true,
-          products: true,
+          products: {
+            product: true,
+          },
         },
       });
 
@@ -97,7 +106,7 @@ export class ProductRecommendationService {
       throw new NotFoundException('상품 추천을 찾을 수 없습니다.');
     }
 
-    return productRecommendation;
+    return new GetProductRecommendationResDto(productRecommendation);
   }
 
   async completeProductRecommendation(

@@ -68,17 +68,11 @@ export class UpdateProductRecommendationService {
       productCategory: ProductCategoryEnum;
     },
   ) {
-    const productRecommendation =
-      await this.productRecommendationService.findOneProductRecommendation(
-        productRecommendationId,
-        userId,
-      );
-
     // 1-1) 카테고리 저장
-    await this.productRecommendationRepository.save({
-      ...productRecommendation,
-      category: productCategory,
-    });
+    await this.productRecommendationRepository.update(
+      { id: productRecommendationId },
+      { category: productCategory },
+    );
 
     // 1-2) 최근 태그 10개 조회
     const recentProductTags = await this.productTagRepository
