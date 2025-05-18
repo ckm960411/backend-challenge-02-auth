@@ -170,6 +170,7 @@ export class ProductService {
       ? await this.userProductRepository.findOne({
           where: {
             userId,
+            product: { id: productId },
           },
         })
       : undefined;
