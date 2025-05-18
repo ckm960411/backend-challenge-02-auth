@@ -5,11 +5,11 @@ import { ProductCategoryEnum } from 'src/entities/enum/product-category.enum';
 import { Product } from 'src/entities/product.entity';
 import {
   DataSource,
-  Like,
   Repository,
   Between,
   MoreThanOrEqual,
   LessThanOrEqual,
+  ILike,
 } from 'typeorm';
 import { GetProductsResponse } from './dto/response/get-products.response';
 import { WithRelations } from 'src/utils/types/utility/WithRelations.utility';
@@ -66,7 +66,7 @@ export class ProductService {
       where: {
         productCategory: { name: category },
         productTags: tag ? { name: tag } : undefined,
-        name: name ? Like(`%${name}%`) : undefined,
+        name: name ? ILike(`%${name}%`) : undefined,
         price: (() => {
           if (minPrice && maxPrice) {
             return Between(minPrice, maxPrice);
