@@ -8,7 +8,6 @@ import { UserProduct } from 'src/entities/user-product.entity';
 import { DataSource, Repository } from 'typeorm';
 import { CreateUserProductReqDto } from './dto/request/create-user-product.req.dto';
 import { UpdateUserProductReqDto } from './dto/request/update-user-product.req.dto';
-import { map } from 'lodash';
 import { GetUserProductResponse } from './dto/response/get-user-product.response';
 import { Review } from 'src/entities/review.entity';
 
@@ -40,10 +39,22 @@ export class UserProductService {
       },
     });
 
-    return map(
-      userProducts,
-      (userProduct) => new GetUserProductResponse(userProduct),
-    );
+    const response: GetUserProductResponse[] = [];
+
+    for (const userProduct of userProducts) {
+      const reviews = await this.reviewRepository.find({
+        where: {
+          product: { id: userProduct.productId },
+        },
+        relations: {
+          reviewPhotos: true,
+          user: true,
+        },
+      });
+      response.push(new GetUserProductResponse(userProduct, reviews));
+    }
+
+    return response;
   }
 
   async findUserProductById(userId: number, userProductId: number) {
