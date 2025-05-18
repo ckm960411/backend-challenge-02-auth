@@ -86,6 +86,9 @@ export class ProductService {
         productTags: true,
         productSpecs: true,
         productPhotos: true,
+        productOptions: {
+          productOptionDetails: true,
+        },
         reviews: sortBy === 'reviewCount',
       },
     });

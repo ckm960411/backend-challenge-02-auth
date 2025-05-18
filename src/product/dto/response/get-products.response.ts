@@ -43,6 +43,15 @@ export class GetProductsResponse {
   photos: string[];
 
   @Column()
+  specs: { type: string; value: string }[];
+
+  @Column()
+  options: {
+    additionalPrice: number;
+    details: { type: string; value: string }[];
+  }[];
+
+  @Column()
   tags: string[];
 
   @Column()
@@ -60,7 +69,12 @@ export class GetProductsResponse {
   constructor(
     product: WithRelations<
       Product,
-      'productCategory' | 'productColors' | 'productTags' | 'productPhotos'
+      | 'productCategory'
+      | 'productColors'
+      | 'productTags'
+      | 'productPhotos'
+      | 'productSpecs'
+      | 'productOptions'
     >,
     userProducts: UserProduct[],
     wishes: Wish[],
@@ -80,7 +94,18 @@ export class GetProductsResponse {
       name: color.name,
       code: color.code,
     }));
-
+    this.specs = map(product.productSpecs ?? [], (spec) => ({
+      type: spec.type,
+      value: spec.value,
+    }));
+    this.options = map(product.productOptions ?? [], (option) => ({
+      additionalPrice: option.additionalPrice,
+      details: map(option.productOptionDetails ?? [], (detail) => ({
+        type: detail.type,
+        value: detail.value,
+      })),
+    }));
+    this.tags = map(product.productTags, (tag) => tag.name);
     const userProduct =
       userProducts?.find(
         (userProduct) => userProduct.productId === product.id,
