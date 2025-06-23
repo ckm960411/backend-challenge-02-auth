@@ -106,6 +106,7 @@ export class BaseProductResponse {
       type: spec.type,
       value: spec.value,
     }));
+    this.photos = map(product.productPhotos, (photo) => photo.url);
   }
 }
 
