@@ -73,6 +73,7 @@ export class BaseProductResponse {
       | 'productCategory'
       | 'productColors'
       | 'productTags'
+      | 'productSpecs'
       | 'productPhotos'
       | 'reviews'
     >,
@@ -137,6 +138,7 @@ export class MacProductResponse extends BaseProductResponse {
       | 'productTags'
       | 'productSpecs'
       | 'productPhotos'
+      | 'reviews'
     >,
     productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
     select?: {
@@ -227,6 +229,7 @@ export class IPadProductResponse extends BaseProductResponse {
       | 'productTags'
       | 'productSpecs'
       | 'productPhotos'
+      | 'reviews'
     >,
     productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
     select?: {
@@ -311,6 +314,7 @@ export class IPhoneProductResponse extends BaseProductResponse {
       | 'productTags'
       | 'productSpecs'
       | 'productPhotos'
+      | 'reviews'
     >,
     productOptions: WithRelations<ProductOption, 'productOptionDetails'>[],
     select?: {
