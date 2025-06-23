@@ -89,7 +89,7 @@ export class ProductService {
         productOptions: {
           productOptionDetails: true,
         },
-        reviews: sortBy === 'reviewCount',
+        reviews: true,
       },
     });
 

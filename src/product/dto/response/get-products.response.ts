@@ -66,6 +66,9 @@ export class GetProductsResponse {
   @Column()
   wishId: number | null;
 
+  @Column()
+  reviewCount: number;
+
   constructor(
     product: WithRelations<
       Product,
@@ -75,6 +78,7 @@ export class GetProductsResponse {
       | 'productPhotos'
       | 'productSpecs'
       | 'productOptions'
+      | 'reviews'
     >,
     userProducts: UserProduct[],
     wishes: Wish[],
@@ -119,6 +123,7 @@ export class GetProductsResponse {
       }) ?? null;
     this.isInWish = !!wish;
     this.wishId = wish?.id ?? null;
+    this.reviewCount = product.reviews?.length ?? 0;
   }
 
   static of(
@@ -129,6 +134,7 @@ export class GetProductsResponse {
       | 'productTags'
       | 'productSpecs'
       | 'productPhotos'
+      | 'reviews'
     >,
     userProducts: UserProduct[],
     wishes: Wish[],
