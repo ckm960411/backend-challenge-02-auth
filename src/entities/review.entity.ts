@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString, Max, Min } from 'class-validator';
@@ -41,7 +41,6 @@ export class Review extends BaseEntity {
     description: '리뷰 사진 목록',
   })
   @OneToMany(() => ReviewPhoto, (reviewPhoto) => reviewPhoto.review)
-  @JoinColumn()
   reviewPhotos?: ReviewPhoto[];
 
   @ApiProperty({

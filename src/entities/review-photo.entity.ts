@@ -20,6 +20,8 @@ export class ReviewPhoto extends BaseEntity {
   @ApiProperty({
     description: '리뷰 목록',
   })
-  @ManyToOne(() => Review, (review) => review.reviewPhotos)
+  @ManyToOne(() => Review, (review) => review.reviewPhotos, {
+    onDelete: 'CASCADE',
+  })
   review: Review;
 }

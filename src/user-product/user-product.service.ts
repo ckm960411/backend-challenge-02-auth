@@ -162,7 +162,8 @@ export class UserProductService {
       });
 
       if (reviews.length === 0) {
-        return await manager.delete(UserProduct, userProductId);
+        await manager.delete(UserProduct, userProductId);
+        return userProductId;
       }
 
       if (!force) {
@@ -173,6 +174,7 @@ export class UserProductService {
         userProductId: userProduct.id,
       });
       await manager.delete(UserProduct, userProductId);
+      return userProductId;
     });
   }
 }
