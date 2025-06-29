@@ -85,24 +85,26 @@ export class UserService {
 
     // 얼마나 낳은 기기를 구매했는지
     // 현재보유 3점, 과거보유1점
-    const productCountPoint = sumBy(userProducts, (userProduct) => {
-      if (userProduct.status === UserProductStatus.SOLD) {
-        return 1 * (userProduct.repurchasedCount || 1);
-      }
-      return 3 * (userProduct.repurchasedCount || 1);
-    });
+    const productCountPoint =
+      sumBy(userProducts, (userProduct) => {
+        if (userProduct.status === UserProductStatus.SOLD) {
+          return 1 * (userProduct.repurchasedCount || 1);
+        }
+        return 3 * (userProduct.repurchasedCount || 1);
+      }) ?? 0;
 
     // 얼마나 많은 돈을 썼는지
     // 100만원당 1점
-    const productPricePoint = Math.ceil(
-      sumBy(userProducts, (userProduct) => {
-        const product = userProduct.product as any;
-        return (
-          userProduct.purchasePrice ??
-          product.price + (product?.myOption?.additionalPrice ?? 0)
-        );
-      }) / 1000000,
-    );
+    const productPricePoint =
+      Math.ceil(
+        sumBy(userProducts, (userProduct) => {
+          const product = userProduct.product as any;
+          return (
+            userProduct.purchasePrice ??
+            product.price + (product?.myOption?.additionalPrice ?? 0)
+          );
+        }) / 1000000,
+      ) ?? 0;
 
     // 얼마나 오래 사용했는지
     // 10년당 1점
@@ -110,7 +112,7 @@ export class UserService {
       return differenceInMonths(new Date(), new Date(userProduct.purchasedAt));
     });
     const purchasedYearCount = Math.ceil(purchasedMonthCount / 12);
-    const purchasedYearPoint = Math.ceil(purchasedYearCount / 10);
+    const purchasedYearPoint = Math.ceil(purchasedYearCount / 10) ?? 0;
 
     // 얼마나 많은 카테고리를 꾸리고 있는지
     const currentUserProducts = userProducts.filter(
