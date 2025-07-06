@@ -109,7 +109,9 @@ export class UserService {
     // 얼마나 오래 사용했는지
     // 10년당 1점
     const purchasedMonthCount = sumBy(userProducts, (userProduct) => {
-      return differenceInMonths(new Date(), new Date(userProduct.purchasedAt));
+      return userProduct.purchasedAt
+        ? differenceInMonths(new Date(), new Date(userProduct.purchasedAt))
+        : 0;
     });
     const purchasedYearCount = Math.ceil(purchasedMonthCount / 12);
     const purchasedYearPoint = Math.ceil(purchasedYearCount / 10) ?? 0;
