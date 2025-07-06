@@ -195,7 +195,7 @@ export class UpdateProductRecommendationService {
         category: productRecommendation.category,
       });
 
-    // 3-2) 가격 범위가 있는 경우 가격 조건 추가
+    // // 3-2) 가격 범위가 있는 경우 가격 조건 추가
     if (minPrice !== undefined) {
       queryBuilder.andWhere('product.price >= :minPrice', { minPrice });
     }
@@ -208,7 +208,7 @@ export class UpdateProductRecommendationService {
       queryBuilder
         .innerJoin('product.productTags', 'productTag')
         .andWhere('productTag.name IN (:...tags)', {
-          tags: map(productRecommendation.tags, 'name'),
+          tags: productRecommendation.tags,
         });
     }
 
@@ -277,7 +277,7 @@ export class UpdateProductRecommendationService {
       queryBuilder
         .innerJoin('product.productTags', 'productTag')
         .andWhere('productTag.name IN (:...tags)', {
-          tags: map(productRecommendation.tags, 'name'),
+          tags: productRecommendation.tags,
         });
     }
 
