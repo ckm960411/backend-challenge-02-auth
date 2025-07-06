@@ -27,6 +27,7 @@ import { ChangePasswordRequest } from './dto/request/change-password.request';
 import { ResetPasswordRequestDto } from './dto/request/reset-password-request.dto';
 import { VerifyCodeDto } from './dto/request/verify-code.dto';
 import { ResetPasswordDto } from './dto/request/reset-password.dto';
+import { ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -99,6 +100,13 @@ export class AuthController {
     res.redirect(`${webUrl}/auth/kakao/callback?accessToken=${accessToken}`);
   }
 
+  @ApiOperation({
+    summary: '비밀번호 재설정 요청',
+  })
+  @ApiBody({
+    description: '비밀번호 재설정 요청 body',
+    type: ResetPasswordRequestDto,
+  })
   @Post('password/reset-request')
   @HttpCode(HttpStatus.OK)
   async requestPasswordReset(
@@ -110,6 +118,13 @@ export class AuthController {
     );
   }
 
+  @ApiOperation({
+    summary: '비밀번호 재설정 인증 코드 검증',
+  })
+  @ApiBody({
+    description: '인증 코드 검증 body',
+    type: VerifyCodeDto,
+  })
   @Post('password/verify-code')
   @HttpCode(HttpStatus.OK)
   async verifyPasswordResetCode(
@@ -122,6 +137,13 @@ export class AuthController {
     return { isValid };
   }
 
+  @ApiOperation({
+    summary: '비밀번호 재설정',
+  })
+  @ApiBody({
+    description: '비밀번호 재설정 body',
+    type: ResetPasswordDto,
+  })
   @Post('password/reset')
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() request: ResetPasswordDto): Promise<void> {

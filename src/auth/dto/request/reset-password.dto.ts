@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
@@ -8,14 +9,26 @@ import {
 } from 'class-validator';
 
 export class ResetPasswordDto {
+  @ApiProperty({
+    description: '이메일',
+    example: 'test@test.com',
+  })
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
+  @ApiProperty({
+    description: '인증 코드',
+    example: '123456',
+  })
   @IsString()
   @IsNotEmpty()
   code: string;
 
+  @ApiProperty({
+    description: '새 비밀번호',
+    example: '12345678',
+  })
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
